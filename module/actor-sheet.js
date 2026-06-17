@@ -1,12 +1,15 @@
 import { EntitySheetHelper } from "./helper.js";
 import { ATTRIBUTE_TYPES } from "./constants.js";
 
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+
 /**
  * Extend DocumentSheetV2 (ApplicationV2 framework) for actor sheets.
+ * Uses HandlebarsApplicationMixin to support .html templates.
  * Replaces V1 ActorSheet; see docs/ARCHITECTURE.md for migration notes.
  * @extends {foundry.applications.api.DocumentSheetV2}
  */
-export class SimpleActorSheet extends foundry.applications.api.DocumentSheetV2 {
+export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applications.api.DocumentSheetV2) {
   /** @override */
   static DEFAULT_OPTIONS = {
     classes: ["varlyn5e", "sheet", "actor"],

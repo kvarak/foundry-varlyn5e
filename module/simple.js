@@ -43,10 +43,10 @@ Hooks.once("init", async () => {
   CONFIG.Token.objectClass = SimpleToken;
 
   // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("varlyn5e", SimpleActorSheet, { makeDefault: true });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("varlyn5e", SimpleItemSheet, { makeDefault: true });
+  foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  foundry.documents.collections.Actors.registerSheet("varlyn5e", SimpleActorSheet, { makeDefault: true });
+  foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  foundry.documents.collections.Items.registerSheet("varlyn5e", SimpleItemSheet, { makeDefault: true });
 
   // Register system settings
   game.settings.register("varlyn5e", "macroShorthand", {
