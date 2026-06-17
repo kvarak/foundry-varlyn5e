@@ -15,6 +15,9 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   static DEFAULT_OPTIONS = {
     classes: ["varlyn5e", "sheet", "actor"],
     position: { width: 650, height: 680 },
+    // editable:true is required — ApplicationV2.isEditable checks options.editable;
+    // DocumentSheetV2.isEditable also gates on document.isOwner so permissions are still respected.
+    editable: true,
     form: { submitOnChange: true, closeOnSubmit: false },
   };
 
@@ -31,6 +34,9 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
 
   /** Collapsed skill tree nodes (UI-only, not persisted). @type {Set<string>} */
   _collapsedSkillNodes = new Set();
+
+  /** Whether _collapsedSkillNodes has been auto-initialized on first render. */
+  _skillNodesInitialized = false;
 
   /** @override */
   get title() {
@@ -107,6 +113,9 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
     const expertise = new Set(doc.system.skills?.expertise ?? []);
     const points = doc.system.skills?.points ?? { total: 3, spent: 0, available: 3 };
     const collapsedNodes = this._collapsedSkillNodes;
+
+    // Auto-collapse parent nodes on first open (unless they have owned descendants).
+    if (!this._skillNodesInitialized) this._initSkillCollapse(purchased);
 
     const skillCategories = {};
     for (const [catKey, category] of Object.entries(VARLYN_SKILLS)) {
@@ -201,6 +210,47 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
       key = def.parent ?? null;
     }
     return path.join(" › ");
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Auto-collapse all parent skill nodes that have no owned descendants.
+   * Called once on first sheet render; subsequent manual toggles are preserved.
+   * @param {Set<string>} purchased  Set of purchased skill keys.
+   */
+  _initSkillCollapse(purchased) {
+    this._skillNodesInitialized = true;
+    for (const category of Object.values(VARLYN_SKILLS)) {
+      const catSkills = category.skills;
+      const childrenOf = {};
+      for (const [sk, sd] of Object.entries(catSkills)) {
+        if (sd.parent) {
+          if (!childrenOf[sd.parent]) childrenOf[sd.parent] = [];
+          childrenOf[sd.parent].push(sk);
+        }
+      }
+      for (const parentKey of Object.keys(childrenOf)) {
+        if (!this._hasOwnedDescendant(parentKey, purchased, childrenOf)) {
+          this._collapsedSkillNodes.add(parentKey);
+        }
+      }
+    }
+  }
+
+  /**
+   * Check whether any descendant of a skill is in the purchased set.
+   * @param {string} skillKey
+   * @param {Set<string>} purchased
+   * @param {Record<string, string[]>} childrenOf
+   * @returns {boolean}
+   */
+  _hasOwnedDescendant(skillKey, purchased, childrenOf) {
+    for (const child of childrenOf[skillKey] ?? []) {
+      if (purchased.has(child)) return true;
+      if (this._hasOwnedDescendant(child, purchased, childrenOf)) return true;
+    }
+    return false;
   }
 
   /* -------------------------------------------- */
@@ -311,13 +361,32 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
 
   /** @override */
   _processFormData(event, form, formData) {
-    const raw = super._processFormData(event, form, formData);
-    // super may return FormDataExtended or plain object — handle both
-    const source = raw && typeof raw === "object" && "object" in raw ? raw.object : (raw ?? formData?.object ?? {});
-    let data = foundry.utils.flattenObject(source);
+    // Use formData.object directly — it is already the flat dot-notation update object.
+    // Calling super here is unreliable across Foundry v14 builds (may return expanded,
+    // flat, or FormDataExtended depending on version).
+    let data = foundry.utils.flattenObject(formData.object);
     data = EntitySheetHelper.updateAttributes(data, this.document);
     data = EntitySheetHelper.updateGroups(data, this.document);
     return data;
+  }
+
+  /** @override — save pending form data when the sheet is closed. */
+  async _preClose(options) {
+    if (this.isEditable && this.element) {
+      const form = this.element.querySelector("form");
+      if (form) {
+        try {
+          const fde = new foundry.applications.ux.FormDataExtended(form);
+          let data = foundry.utils.flattenObject(fde.object);
+          data = EntitySheetHelper.updateAttributes(data, this.document);
+          data = EntitySheetHelper.updateGroups(data, this.document);
+          await this.document.update(data);
+        } catch {
+          // Errors on close are non-fatal — ignore.
+        }
+      }
+    }
+    return super._preClose(options);
   }
 
   /* -------------------------------------------- */
@@ -452,6 +521,13 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
     const purchased = [...(this.document.system.skills?.purchased ?? [])];
     if (!purchased.includes(skillKey)) {
       purchased.push(skillKey);
+      // Expand any collapsed ancestors so the user can immediately see the new skill.
+      const skillDef = findSkillDef(skillKey);
+      let ancestor = skillDef?.parent;
+      while (ancestor) {
+        this._collapsedSkillNodes.delete(ancestor);
+        ancestor = findSkillDef(ancestor)?.parent ?? null;
+      }
       await this.document.update({ "system.skills.purchased": purchased });
     }
   }

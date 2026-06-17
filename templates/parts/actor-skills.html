@@ -16,7 +16,7 @@
     <li class="skill-item {{#if skill.owned}}owned{{/if}} {{#if skill.isTrait}}is-trait{{/if}} {{#if skill.hiddenByCollapse}}skill-hidden{{/if}}"
         data-skill="{{skillKey}}"
         style="padding-left: {{skill.indentPx}}px"
-        data-tooltip="{{skill.tooltip}}">
+        >
       <div class="skill-row flexrow">
 
         {{#if skill.isParent}}
@@ -55,11 +55,11 @@
         {{#if skill.rollable}}
         <a class="skill-name rollable"
            data-action="roll-skill" data-skill="{{skillKey}}"
-           title="Roll {{skill.breadcrumb}} ({{skill.abilityAbbr}})">
+           data-tooltip="{{skill.tooltip}}" data-tooltip-direction="UP">
           {{skill.label}}
         </a>
         {{else}}
-        <span class="skill-name {{#if skill.isTrait}}skill-trait-name{{/if}}">{{skill.label}}</span>
+        <span class="skill-name {{#if skill.isTrait}}skill-trait-name{{/if}}" data-tooltip="{{skill.tooltip}}" data-tooltip-direction="UP">{{skill.label}}</span>
         {{/if}}
 
         <span class="skill-ability">{{skill.abilityAbbr}}</span>
