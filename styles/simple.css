@@ -65,6 +65,8 @@
   text-shadow: none;
 }
 .varlyn5e .sheet-body {
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 .varlyn5e .sheet-body .tab {
@@ -358,6 +360,17 @@
   font-size: 10px;
   width: 14px;
 }
+.skill-list .skill-item.is-trait .skill-name {
+  font-style: italic;
+}
+.skill-list .skill-item.skill-hidden {
+  display: none;
+}
+.skill-list .skill-item .skill-indent {
+  display: inline-block;
+  width: 14px;
+  flex: 0 0 14px;
+}
 .skill-list .skill-item .skill-expertise-icon {
   color: #c9a227;
 }
@@ -373,6 +386,12 @@
 }
 .skill-list .skill-item .skill-control.active {
   color: #c9a227;
+}
+.skill-roll-ability {
+  font-size: 11px;
+  font-weight: normal;
+  opacity: 0.75;
+  display: inline;
 }
 /* ─── Character Details ──────────────────────────────────────────────────── */
 .character-details {

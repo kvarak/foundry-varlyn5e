@@ -22,18 +22,23 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   static PARTS = {
     form: {
       template: "systems/varlyn5e/templates/actor-sheet.html",
-      scrollable: [".biography", ".items", ".attributes", ".skills-tab-content", ".abilities"],
+      scrollable: [".biography", ".items", ".attributes"],
     },
   };
 
-  /** Active tab defaults to abilities. @type {Record<string, string>} */
+  /** Active tab (UI state). @type {Record<string, string>} */
   tabGroups = { primary: "abilities" };
+
+  /** Collapsed skill tree nodes (UI-only, not persisted). @type {Set<string>} */
+  _collapsedSkillNodes = new Set();
 
   /** @override */
   get title() {
     return this.document.name;
   }
 
+  /* -------------------------------------------- */
+  /*  Context Preparation                          */
   /* -------------------------------------------- */
 
   /** @override */
@@ -91,7 +96,8 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   /* -------------------------------------------- */
 
   /**
-   * Build the skill categories structure for template rendering.
+   * Build skill categories with full UI metadata for the template.
+   * Includes: trait detection, collapse state, breadcrumb, rollable flag.
    * @param {SimpleActor} doc
    * @param {Record<string, Object>} abilities
    * @returns {{ skillCategories: Record<string, Object>, skillPoints: Object }}
@@ -100,13 +106,23 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
     const purchased = new Set(doc.system.skills?.purchased ?? []);
     const expertise = new Set(doc.system.skills?.expertise ?? []);
     const points = doc.system.skills?.points ?? { total: 3, spent: 0, available: 3 };
+    const collapsedNodes = this._collapsedSkillNodes;
 
     const skillCategories = {};
     for (const [catKey, category] of Object.entries(VARLYN_SKILLS)) {
       if (!Object.keys(category.skills).length) continue;
       const sortedKeys = skillTreeOrder(category.skills);
-      const skills = {};
 
+      // Pre-compute which skills have children (to show collapse toggle)
+      const childrenOf = {};
+      for (const [sk, sd] of Object.entries(category.skills)) {
+        if (sd.parent) {
+          if (!childrenOf[sd.parent]) childrenOf[sd.parent] = [];
+          childrenOf[sd.parent].push(sk);
+        }
+      }
+
+      const skills = {};
       for (const skillKey of sortedKeys) {
         const skillDef = category.skills[skillKey];
         const owned = purchased.has(skillKey);
@@ -115,21 +131,47 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
         const hasExp = expertise.has(skillKey);
         const abilityMod = abilities[skillDef.ability]?.mod ?? 0;
         const depth = getSkillDepth(skillKey, category.skills);
+        const isTrait = !!skillDef.trait;
+        const isParent = !!childrenOf[skillKey]?.length;
+
+        // Check if hidden because an ancestor is collapsed
+        let hiddenByCollapse = false;
+        let ancestor = skillDef.parent;
+        while (ancestor) {
+          if (collapsedNodes.has(ancestor)) {
+            hiddenByCollapse = true;
+            break;
+          }
+          ancestor = category.skills[ancestor]?.parent ?? null;
+        }
+
+        // Trait skills are passive (no roll); all others: owned or untrained = rollable
+        const rollable = !isTrait && (owned || !!skillDef.untrained);
+
+        const abilityAbbr = abilities[skillDef.ability]?.abbr ?? skillDef.ability.toUpperCase();
+        const breadcrumb = this._buildSkillBreadcrumb(skillKey, category.skills);
+        const typeLabel = isTrait ? "Trait" : skillDef.untrained ? "Untrained" : "Skill";
 
         skills[skillKey] = {
           label: skillDef.label,
           ability: skillDef.ability,
-          abilityAbbr: abilities[skillDef.ability]?.abbr ?? skillDef.ability.toUpperCase(),
+          abilityAbbr,
           mod: abilityMod,
           modSigned: (abilityMod >= 0 ? "+" : "") + abilityMod,
           owned,
           canPurchase,
           hasExpertise: hasExp,
-          rollable: owned || !!skillDef.untrained,
+          rollable,
+          isTrait,
+          isParent,
+          isCollapsed: collapsedNodes.has(skillKey),
+          hiddenByCollapse,
           depth,
           indentPx: 8 + depth * 14,
           parent: skillDef.parent ?? null,
           untrained: !!skillDef.untrained,
+          breadcrumb,
+          tooltip: `${breadcrumb} • ${abilityAbbr} • ${typeLabel}`,
         };
       }
 
@@ -144,8 +186,30 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   /* -------------------------------------------- */
 
   /**
+   * Build the full ancestor path for a skill: "Acrobatics › Parkour › Wall Runner"
+   * @param {string} skillKey
+   * @param {Record<string, Object>} categorySkills
+   * @returns {string}
+   */
+  _buildSkillBreadcrumb(skillKey, categorySkills) {
+    const path = [];
+    let key = skillKey;
+    while (key) {
+      const def = categorySkills[key];
+      if (!def) break;
+      path.unshift(def.label);
+      key = def.parent ?? null;
+    }
+    return path.join(" › ");
+  }
+
+  /* -------------------------------------------- */
+  /*  Tab Management                               */
+  /* -------------------------------------------- */
+
+  /**
    * Activate a tab by directly toggling active classes on nav items and content divs.
-   * Avoids using changeTab() whose API varies across Foundry v14 builds.
+   * Avoids changeTab() API differences across Foundry v14 builds.
    * @param {string} tab  The tab name to activate.
    */
   _activateTab(tab) {
@@ -159,15 +223,17 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   }
 
   /* -------------------------------------------- */
+  /*  Render Lifecycle                             */
+  /* -------------------------------------------- */
 
   /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
 
-    // Initialize active tab (direct DOM manipulation — avoids changeTab API differences)
+    // Activate default tab
     this._activateTab(this.tabGroups.primary ?? "abilities");
 
-    // Tab navigation click handlers
+    // Tab navigation
     this.element.querySelectorAll(".sheet-tabs .item[data-tab]").forEach((tab) => {
       tab.addEventListener("click", (event) => {
         event.preventDefault();
@@ -175,29 +241,40 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
       });
     });
 
-    if (!this.isEditable) return;
-
-    // Ability rolls
+    // ── Ability rolls: available to anyone who can view the sheet ──────────
     this.element.querySelector(".abilities-grid")?.addEventListener("click", (event) => {
-      const el = event.target.closest("[data-action='roll-ability']");
-      if (el) this._onAbilityRoll(event);
+      if (event.target.closest("[data-action='roll-ability']")) this._onAbilityRoll(event);
     });
 
-    // Skills (purchase, expertise toggle, roll)
-    this.element.querySelector(".skills-tab-content")?.addEventListener("click", (event) => {
-      const purchaseEl = event.target.closest("[data-action='purchase-skill']");
-      if (purchaseEl) {
-        this._onPurchaseSkill(event);
-        return;
-      }
-      const expertiseEl = event.target.closest("[data-action='toggle-expertise']");
-      if (expertiseEl) {
-        this._onToggleExpertise(event);
-        return;
-      }
-      const rollEl = event.target.closest("[data-action='roll-skill']");
-      if (rollEl) this._onSkillRoll(event);
-    });
+    // ── Skills tab: rolls + collapse for everyone; purchases only for editable ──
+    const skillsContent = this.element.querySelector(".skills-tab-content");
+    if (skillsContent) {
+      skillsContent.addEventListener("click", (event) => {
+        if (event.target.closest("[data-action='roll-skill']")) {
+          this._onSkillRoll(event);
+          return;
+        }
+        if (event.target.closest("[data-action='toggle-skill-tree']")) {
+          this._onToggleSkillCollapse(event);
+          return;
+        }
+        // Below this point: editable-only actions
+        if (!this.isEditable) return;
+        if (event.target.closest("[data-action='purchase-skill']")) {
+          this._onPurchaseSkill(event);
+          return;
+        }
+        if (event.target.closest("[data-action='toggle-expertise']")) {
+          this._onToggleExpertise(event);
+        }
+      });
+    }
+
+    // Restore collapse display state after re-render
+    if (this._collapsedSkillNodes.size > 0) this._updateSkillDisplay();
+
+    // ── Everything below is editable-only ─────────────────────────────────
+    if (!this.isEditable) return;
 
     // Attribute Management
     this.element.querySelector(".attributes")?.addEventListener("click", (event) => {
@@ -219,27 +296,81 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
       .querySelectorAll(".items .rollable")
       .forEach((el) => el.addEventListener("click", this._onItemRoll.bind(this)));
 
-    // Draggable attribute rolls for Macro creation
+    // Draggable attribute rolls for macro creation
     this.element.querySelectorAll(".attributes a.attribute-roll").forEach((a) => {
       a.setAttribute("draggable", true);
       a.addEventListener("dragstart", (ev) => {
-        const dragData = ev.currentTarget.dataset;
-        ev.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+        ev.dataTransfer.setData("text/plain", JSON.stringify(ev.currentTarget.dataset));
       });
     });
   }
 
   /* -------------------------------------------- */
+  /*  Form Submission                              */
+  /* -------------------------------------------- */
 
   /** @override */
   _processFormData(event, form, formData) {
-    const submitData = super._processFormData(event, form, formData);
-    let data = foundry.utils.flattenObject(submitData);
+    const raw = super._processFormData(event, form, formData);
+    // super may return FormDataExtended or plain object — handle both
+    const source = raw && typeof raw === "object" && "object" in raw ? raw.object : (raw ?? formData?.object ?? {});
+    let data = foundry.utils.flattenObject(source);
     data = EntitySheetHelper.updateAttributes(data, this.document);
     data = EntitySheetHelper.updateGroups(data, this.document);
     return data;
   }
 
+  /* -------------------------------------------- */
+  /*  Skill Tree Collapse                          */
+  /* -------------------------------------------- */
+
+  /**
+   * Toggle collapse state of a skill's subtree.
+   * @param {MouseEvent} event
+   */
+  _onToggleSkillCollapse(event) {
+    const el = event.target.closest("[data-action='toggle-skill-tree']");
+    const skillKey = el?.dataset.skill;
+    if (!skillKey) return;
+    if (this._collapsedSkillNodes.has(skillKey)) this._collapsedSkillNodes.delete(skillKey);
+    else this._collapsedSkillNodes.add(skillKey);
+    this._updateSkillDisplay();
+  }
+
+  /**
+   * Update skill item visibility and toggle icons based on collapse state.
+   * Operates directly on DOM — no full re-render needed.
+   */
+  _updateSkillDisplay() {
+    const collapsedNodes = this._collapsedSkillNodes;
+
+    this.element.querySelectorAll(".skill-item[data-skill]").forEach((item) => {
+      const skillKey = item.dataset.skill;
+      const skillDef = findSkillDef(skillKey);
+      if (!skillDef) return;
+      let shouldHide = false;
+      let ancestor = skillDef.parent;
+      while (ancestor) {
+        if (collapsedNodes.has(ancestor)) {
+          shouldHide = true;
+          break;
+        }
+        ancestor = findSkillDef(ancestor)?.parent ?? null;
+      }
+      item.classList.toggle("skill-hidden", shouldHide);
+    });
+
+    // Update chevron icons
+    this.element.querySelectorAll("[data-action='toggle-skill-tree'][data-skill]").forEach((btn) => {
+      const isCollapsed = collapsedNodes.has(btn.dataset.skill);
+      const icon = btn.querySelector("i");
+      if (icon) icon.className = isCollapsed ? "fas fa-chevron-right" : "fas fa-chevron-down";
+      btn.closest(".skill-item")?.classList.toggle("skill-collapsed", isCollapsed);
+    });
+  }
+
+  /* -------------------------------------------- */
+  /*  Roll Handlers                                */
   /* -------------------------------------------- */
 
   /** Roll an ability check. */
@@ -261,39 +392,59 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
 
   /* -------------------------------------------- */
 
-  /** Roll a skill check (advantage if expertise, disadvantage if unowned non-untrained). */
+  /**
+   * Roll a skill check.
+   * - Trait skills: never rolled (guard in template, but also here for safety)
+   * - Untrained skills: always 1d20 + mod (no disadvantage)
+   * - Owned skills: 1d20 + mod
+   * - Unowned non-untrained: 2d20kl (disadvantage)
+   * - Expertise: 2d20kh (advantage)
+   */
   _onSkillRoll(event) {
     const el = event.target.closest("[data-action='roll-skill']");
     const skillKey = el?.dataset.skill;
     if (!skillKey) return;
     const skillDef = findSkillDef(skillKey);
-    if (!skillDef) return;
+    if (!skillDef || skillDef.trait) return;
 
     const ability = this.document.system.abilities?.[skillDef.ability];
     const mod = Math.floor(((ability?.value ?? 10) - 10) / 2);
+    const abilityAbbr = VARLYN.abilities[skillDef.ability]
+      ? game.i18n.localize(VARLYN.abilities[skillDef.ability].abbreviation)
+      : skillDef.ability.toUpperCase();
+
+    // Build breadcrumb path for roll flavor
+    let catSkills = null;
+    for (const cat of Object.values(VARLYN_SKILLS)) {
+      if (cat.skills[skillKey]) {
+        catSkills = cat.skills;
+        break;
+      }
+    }
+    const breadcrumb = catSkills ? this._buildSkillBreadcrumb(skillKey, catSkills) : skillDef.label;
+
     const purchased = this.document.system.skills?.purchased ?? [];
     const expertise = this.document.system.skills?.expertise ?? [];
     const owned = purchased.includes(skillKey);
     const hasExpertise = expertise.includes(skillKey);
 
     let rollFormula;
-    if (hasExpertise && owned)
-      rollFormula = "2d20kh + @mod"; // advantage
-    else if (!owned && !skillDef.untrained)
-      rollFormula = "2d20kl + @mod"; // disadvantage
+    if (hasExpertise && owned) rollFormula = "2d20kh + @mod";
+    else if (!owned && !skillDef.untrained) rollFormula = "2d20kl + @mod";
     else rollFormula = "1d20 + @mod";
 
     const r = new Roll(rollFormula, { mod });
+    const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
     return r.toMessage({
       user: game.user.id,
       speaker: ChatMessage.getSpeaker({ actor: this.document }),
-      flavor: `<h3>${skillDef.label}</h3>`,
+      flavor: `<h3>${breadcrumb} <span class="skill-roll-ability">(${abilityAbbr} ${modStr})</span></h3>`,
     });
   }
 
   /* -------------------------------------------- */
 
-  /** Purchase a skill by adding it to system.skills.purchased. */
+  /** Purchase a skill by appending to system.skills.purchased. */
   async _onPurchaseSkill(event) {
     const el = event.target.closest("[data-action='purchase-skill']");
     const skillKey = el?.dataset.skill;
@@ -319,6 +470,8 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
     await this.document.update({ "system.skills.expertise": expertise });
   }
 
+  /* -------------------------------------------- */
+  /*  Item Controls                                */
   /* -------------------------------------------- */
 
   /**

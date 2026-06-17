@@ -72,6 +72,8 @@
   }
 
   .sheet-body {
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
     .tab {
       height: 100%;
@@ -418,7 +420,21 @@
       font-size: 10px;
       width: 14px;
     }
+    &.is-trait {
+      .skill-name {
+        font-style: italic;
+      }
+    }
 
+    &.skill-hidden {
+      display: none;
+    }
+
+    .skill-indent {
+      display: inline-block;
+      width: 14px;
+      flex: 0 0 14px;
+    }
     .skill-expertise-icon {
       color: #c9a227;
     }
@@ -437,6 +453,13 @@
       }
     }
   }
+}
+
+.skill-roll-ability {
+  font-size: 11px;
+  font-weight: normal;
+  opacity: 0.75;
+  display: inline;
 }
 
 /* ─── Character Details ──────────────────────────────────────────────────── */
