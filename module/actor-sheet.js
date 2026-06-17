@@ -16,14 +16,10 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
     classes: ["varlyn5e", "sheet", "actor"],
     position: { width: 650, height: 680 },
     editable: true,
-    form: {
-      // Explicit handler avoids relying on DocumentSheetV2.#onSubmit being
-      // inherited correctly through mergeObject (private method brand checks
-      // can fail when invoked from ApplicationV2's call site).
-      handler: SimpleActorSheet._onSubmit,
-      submitOnChange: true,
-      closeOnSubmit: false,
-    },
+    // No custom handler — DocumentSheetV2's default handler orchestrates the pipeline:
+    //   _prepareSubmitData → _processSubmitData → document.update()
+    // We hook into _prepareSubmitData below.
+    form: { submitOnChange: true, closeOnSubmit: false },
   };
 
   /** @override */
@@ -365,46 +361,37 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   /* -------------------------------------------- */
 
   /**
-   * Form submit handler — called by ApplicationV2 when formConfig.handler fires.
-   * `this` is bound to the sheet instance by ApplicationV2 via .call(this, ...).
-   * @param {Event} _event
-   * @param {HTMLFormElement} _form
-   * @param {object} submitData  Processed flat update object from _processFormData.
-   */
-  static async _onSubmit(_event, _form, submitData) {
-    await this.document.update(submitData);
-  }
-
-  /**
    * @override
-   * DocumentSheetV2 calls _processSubmitData; it may or may not delegate to
-   * _processFormData depending on the Foundry build. Override both to be safe.
+   * Called by DocumentSheetV2's default handler before _processSubmitData.
+   * Receives the raw FormDataExtended, must return a plain update-ready object.
+   * This is the correct v14 hook point for custom attribute/group processing.
+   *
+   * @param {SubmitEvent} event
+   * @param {HTMLFormElement} form
+   * @param {FormDataExtended} formData
+   * @param {object} [updateData]
+   * @returns {object}  Flat update object suitable for document.update()
    */
-  async _processSubmitData(event, form, formData) {
-    return this._processFormData(event, form, formData);
-  }
-
-  /** @override */
-  _processFormData(event, form, formData) {
+  _prepareSubmitData(event, form, formData, updateData) {
     let data = foundry.utils.flattenObject(formData.object);
+    if (updateData) foundry.utils.mergeObject(data, foundry.utils.flattenObject(updateData));
     data = EntitySheetHelper.updateAttributes(data, this.document);
     data = EntitySheetHelper.updateGroups(data, this.document);
     return data;
   }
 
   /**
-   * @override — flush pending form data when the sheet is closed.
-   * Covers the case where the user presses X without first clicking away from
-   * an input (which would have triggered the submitOnChange save).
+   * @override — flush pending form changes when the sheet is closed.
+   * Covers the case where the user presses X without the onChange save firing
+   * (e.g. they pressed Enter, or the input was never blurred).
    */
   async _preClose(options) {
-    if (this.isEditable && this.element) {
-      const form = this.element.querySelector("form");
+    if (this.isEditable) {
+      const form = this.form; // ApplicationV2 accessor — HTMLFormElement | null
       if (form) {
         try {
-          // FormDataExtended is a Foundry global (not namespaced in v14).
-          const fde = new FormDataExtended(form);
-          let data = foundry.utils.flattenObject(fde.object);
+          const fd = new FormDataExtended(form);
+          let data = foundry.utils.flattenObject(fd.object);
           data = EntitySheetHelper.updateAttributes(data, this.document);
           data = EntitySheetHelper.updateGroups(data, this.document);
           await this.document.update(data);
