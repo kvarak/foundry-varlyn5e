@@ -15,10 +15,15 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   static DEFAULT_OPTIONS = {
     classes: ["varlyn5e", "sheet", "actor"],
     position: { width: 650, height: 680 },
-    // editable:true is required — ApplicationV2.isEditable checks options.editable;
-    // DocumentSheetV2.isEditable also gates on document.isOwner so permissions are still respected.
     editable: true,
-    form: { submitOnChange: true, closeOnSubmit: false },
+    form: {
+      // Explicit handler avoids relying on DocumentSheetV2.#onSubmit being
+      // inherited correctly through mergeObject (private method brand checks
+      // can fail when invoked from ApplicationV2's call site).
+      handler: SimpleActorSheet._onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false,
+    },
   };
 
   /** @override */
@@ -359,30 +364,52 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
   /*  Form Submission                              */
   /* -------------------------------------------- */
 
+  /**
+   * Form submit handler — called by ApplicationV2 when formConfig.handler fires.
+   * `this` is bound to the sheet instance by ApplicationV2 via .call(this, ...).
+   * @param {Event} _event
+   * @param {HTMLFormElement} _form
+   * @param {object} submitData  Processed flat update object from _processFormData.
+   */
+  static async _onSubmit(_event, _form, submitData) {
+    await this.document.update(submitData);
+  }
+
+  /**
+   * @override
+   * DocumentSheetV2 calls _processSubmitData; it may or may not delegate to
+   * _processFormData depending on the Foundry build. Override both to be safe.
+   */
+  async _processSubmitData(event, form, formData) {
+    return this._processFormData(event, form, formData);
+  }
+
   /** @override */
   _processFormData(event, form, formData) {
-    // Use formData.object directly — it is already the flat dot-notation update object.
-    // Calling super here is unreliable across Foundry v14 builds (may return expanded,
-    // flat, or FormDataExtended depending on version).
     let data = foundry.utils.flattenObject(formData.object);
     data = EntitySheetHelper.updateAttributes(data, this.document);
     data = EntitySheetHelper.updateGroups(data, this.document);
     return data;
   }
 
-  /** @override — save pending form data when the sheet is closed. */
+  /**
+   * @override — flush pending form data when the sheet is closed.
+   * Covers the case where the user presses X without first clicking away from
+   * an input (which would have triggered the submitOnChange save).
+   */
   async _preClose(options) {
     if (this.isEditable && this.element) {
       const form = this.element.querySelector("form");
       if (form) {
         try {
-          const fde = new foundry.applications.ux.FormDataExtended(form);
+          // FormDataExtended is a Foundry global (not namespaced in v14).
+          const fde = new FormDataExtended(form);
           let data = foundry.utils.flattenObject(fde.object);
           data = EntitySheetHelper.updateAttributes(data, this.document);
           data = EntitySheetHelper.updateGroups(data, this.document);
           await this.document.update(data);
-        } catch {
-          // Errors on close are non-fatal — ignore.
+        } catch (err) {
+          console.warn("varlyn5e | Failed to flush actor sheet on close:", err);
         }
       }
     }
