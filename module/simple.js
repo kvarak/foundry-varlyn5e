@@ -11,6 +11,7 @@ import { SimpleActorSheet } from "./actor-sheet.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createVarlyn5eMacro } from "./macro.js";
 import { SimpleToken, SimpleTokenDocument } from "./token.js";
+import { VARLYN } from "./config.js";
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
@@ -34,7 +35,11 @@ Hooks.once("init", async () => {
   game.varlyn5e = {
     SimpleActor,
     createVarlyn5eMacro,
+    config: VARLYN,
   };
+
+  // Expose VARLYN config globally for macros and other modules
+  CONFIG.VARLYN = VARLYN;
 
   // Define custom Document classes
   CONFIG.Actor.documentClass = SimpleActor;

@@ -39,6 +39,9 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(foundry.applicat
   async _prepareContext(options) {
     const doc = this.document;
     const docData = doc.toObject(false);
+    const isItem = doc.type === "item";
+    const isFolk = doc.type === "folk";
+    const isClass = doc.type === "class";
     const context = {
       data: docData,
       systemData: docData.system,
@@ -46,8 +49,11 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(foundry.applicat
       isOwner: doc.isOwner,
       editable: this.isEditable,
       cssClass: this.isEditable ? "editable" : "locked",
+      isItem,
+      isFolk,
+      isClass,
     };
-    EntitySheetHelper.getAttributeData(context.data);
+    if (isItem) EntitySheetHelper.getAttributeData(context.data);
     context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
       context.systemData.description ?? "",
       { secrets: doc.isOwner, async: true }

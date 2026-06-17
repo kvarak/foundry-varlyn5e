@@ -1,0 +1,18 @@
+{{!-- 7-Ability Grid for Varlyn 5e ─────────────────────────────────────────── --}}
+<div class="abilities-grid">
+  {{#each abilities as |ability key|}}
+  <div class="ability-block" data-ability="{{key}}">
+    <label class="ability-label" title="{{ability.label}}">{{ability.abbr}}</label>
+    {{#if editable}}
+    <input class="ability-score" type="number" name="system.abilities.{{key}}.value"
+           value="{{ability.value}}" min="1" max="30" />
+    {{else}}
+    <div class="ability-score">{{ability.value}}</div>
+    {{/if}}
+    <a class="ability-mod rollable" data-action="roll-ability" data-ability="{{key}}"
+       title="{{ability.label}} check ({{ability.modSigned}})">
+      {{ability.modSigned}}
+    </a>
+  </div>
+  {{/each}}
+</div>

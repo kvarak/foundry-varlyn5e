@@ -35,5 +35,70 @@
   "SIMPLE.DeleteGroupContent": "Do you wish to delete this group? This will delete the following group and all attributes included in it: ",
 
   "SIMPLE.Create": "Create",
-  "SIMPLE.New": "New"
+  "SIMPLE.New": "New",
+
+  "VARLYN.HP": "HP",
+  "VARLYN.Level": "Level",
+
+  "VARLYN.TabAbilities": "Abilities",
+  "VARLYN.TabSkills": "Skills",
+  "VARLYN.TabBiography": "Biography",
+  "VARLYN.TabItems": "Items",
+  "VARLYN.TabAttributes": "Attributes",
+
+  "VARLYN.Folk": "Folk",
+  "VARLYN.FolkPlaceholder": "Character folk...",
+  "VARLYN.Class": "Class",
+  "VARLYN.ClassPlaceholder": "Character class...",
+
+  "VARLYN.AbilityStr": "Strength",
+  "VARLYN.AbilityStrAbbr": "STR",
+  "VARLYN.AbilityDex": "Dexterity",
+  "VARLYN.AbilityDexAbbr": "DEX",
+  "VARLYN.AbilityCon": "Constitution",
+  "VARLYN.AbilityConAbbr": "CON",
+  "VARLYN.AbilityInt": "Intelligence",
+  "VARLYN.AbilityIntAbbr": "INT",
+  "VARLYN.AbilityWis": "Wisdom",
+  "VARLYN.AbilityWisAbbr": "WIS",
+  "VARLYN.AbilityCha": "Charisma",
+  "VARLYN.AbilityChaAbbr": "CHA",
+  "VARLYN.AbilityLuk": "Luck",
+  "VARLYN.AbilityLukAbbr": "LUK",
+
+  "VARLYN.AbilityCheck": "Ability Check",
+  "VARLYN.SavingThrow": "Saving Throw",
+
+  "VARLYN.SkillPoints": "Skill Points",
+  "VARLYN.SkillPointsAvailable": "available",
+  "VARLYN.SkillPointsTotal": "total",
+  "VARLYN.SkillPointsSpent": "spent",
+  "VARLYN.SkillLearned": "Learned",
+  "VARLYN.SkillLocked": "Requires prerequisite or skill points",
+  "VARLYN.SkillPurchase": "Purchase skill (1 point)",
+  "VARLYN.SkillRoll": "Roll",
+
+  "VARLYN.SkillCategoryUntrained": "Untrained Skills",
+  "VARLYN.SkillCategoryKnowledge": "Knowledge Skills",
+  "VARLYN.SkillCategoryPractical": "Practical Skills",
+
+  "VARLYN.Expertise": "Expertise",
+  "VARLYN.ExpertiseGrant": "Grant Expertise (rolls with advantage)",
+  "VARLYN.ExpertiseRemove": "Remove Expertise",
+
+  "VARLYN.FolkCategoryOld": "Old Folk",
+  "VARLYN.FolkCategoryVisitor": "Visitor Folk",
+  "VARLYN.FolkCategoryNew": "New Folk",
+  "VARLYN.FolkCategoryAwakened": "Awakened",
+  "VARLYN.FolkCategoryElseTouched": "Else-Touched",
+
+  "VARLYN.HitDie": "Hit Die",
+  "VARLYN.PrimaryAbility": "Primary Ability",
+  "VARLYN.SpellcastingAbility": "Spellcasting Ability",
+  "VARLYN.SkillBonusPerLevel": "Skill Points Per Level (Bonus)",
+
+  "TYPES.Actor.character": "Character",
+  "TYPES.Item.item": "Item",
+  "TYPES.Item.folk": "Folk",
+  "TYPES.Item.class": "Class"
 }

@@ -1,4 +1,5 @@
 import { EntitySheetHelper } from "./helper.js";
+import { VARLYN } from "./config.js";
 
 /**
  * Extend the base Actor document to support attributes and groups with a custom template creation dialog.
@@ -11,6 +12,23 @@ export class SimpleActor extends Actor {
     this.system.groups = this.system.groups || {};
     this.system.attributes = this.system.attributes || {};
     EntitySheetHelper.clampResourceValues(this.system.attributes);
+
+    // Compute ability modifiers: floor((value - 10) / 2)
+    const abilities = this.system.abilities ?? {};
+    for (const ability of Object.values(abilities)) {
+      ability.mod = Math.floor(((ability.value ?? 10) - 10) / 2);
+    }
+
+    // Compute skill points: base = level + INT mod (min 1) + 2
+    const level = this.system.details?.level ?? 1;
+    const intMod = abilities.int?.mod ?? 0;
+    const purchased = this.system.skills?.purchased ?? [];
+    if (this.system.skills) {
+      const total = VARLYN.calcBaseSkillPoints(level, intMod);
+      this.system.skills.points.total = total;
+      this.system.skills.points.spent = purchased.length;
+      this.system.skills.points.available = Math.max(0, total - purchased.length);
+    }
   }
 
   /* -------------------------------------------- */
@@ -60,6 +78,12 @@ export class SimpleActor extends Actor {
       delete data.attr;
       delete data.groups;
     }
+
+    // Add ability modifier shortcuts: @str, @dex, @con, @int, @wis, @cha, @luk
+    for (const [key, ability] of Object.entries(data.abilities ?? {})) {
+      data[key] = Math.floor(((ability.value ?? 10) - 10) / 2);
+    }
+
     return data;
   }
 

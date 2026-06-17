@@ -1,0 +1,77 @@
+{{!-- Skill Points Counter ────────────────────────────────────────────────── --}}
+<div class="skill-points-bar flexrow">
+  <span class="skill-points-label">{{localize "VARLYN.SkillPoints"}}</span>
+  <span class="skill-points-count">
+    <strong>{{skillPoints.available}}</strong> {{localize "VARLYN.SkillPointsAvailable"}}
+    &nbsp;/&nbsp; {{skillPoints.total}} {{localize "VARLYN.SkillPointsTotal"}}
+    &nbsp;({{skillPoints.spent}} {{localize "VARLYN.SkillPointsSpent"}})
+  </span>
+</div>
+
+{{!-- Skill Categories ───────────────────────────────────────────────────── --}}
+{{#each skillCategories as |category catKey|}}
+<div class="skill-category" data-category="{{catKey}}">
+  <h3 class="skill-category-header">{{category.label}}</h3>
+  <ul class="skill-list">
+    {{#each category.skills as |skill skillKey|}}
+    <li class="skill-item {{#if skill.owned}}owned{{/if}}"
+        data-skill="{{skillKey}}"
+        style="padding-left: {{skill.indentPx}}px">
+      <div class="skill-row flexrow">
+
+        {{!-- Purchase / status icon ─────────────────────────────────────── --}}
+        {{#if skill.owned}}
+          <i class="fas fa-circle skill-icon skill-owned" title="{{localize "VARLYN.SkillLearned"}}"></i>
+        {{else}}
+          {{#if skill.canPurchase}}
+            <a class="skill-control skill-purchase"
+               data-action="purchase-skill" data-skill="{{skillKey}}"
+               title="{{localize "VARLYN.SkillPurchase"}}">
+              <i class="fas fa-circle-plus"></i>
+            </a>
+          {{else}}
+            <i class="fas fa-circle skill-icon skill-locked"
+               title="{{localize "VARLYN.SkillLocked"}}"></i>
+          {{/if}}
+        {{/if}}
+
+        {{!-- Skill name ──────────────────────────────────────────────────── --}}
+        {{#if skill.rollable}}
+        <a class="skill-name rollable"
+           data-action="roll-skill" data-skill="{{skillKey}}"
+           title="{{localize "VARLYN.SkillRoll"}} {{skill.label}} ({{skill.abilityAbbr}})">
+          {{skill.label}}
+        </a>
+        {{else}}
+        <span class="skill-name skill-unrollable">{{skill.label}}</span>
+        {{/if}}
+
+        {{!-- Ability abbreviation ────────────────────────────────────────── --}}
+        <span class="skill-ability">{{skill.abilityAbbr}}</span>
+
+        {{!-- Modifier (shown when rollable) ─────────────────────────────── --}}
+        {{#if skill.rollable}}
+        <span class="skill-mod">{{skill.modSigned}}</span>
+        {{/if}}
+
+        {{!-- Expertise toggle ───────────────────────────────────────────── --}}
+        {{#if skill.owned}}
+          {{#if editable}}
+          <a class="skill-control skill-expertise-toggle {{#if skill.hasExpertise}}active{{/if}}"
+             data-action="toggle-expertise" data-skill="{{skillKey}}"
+             title="{{#if skill.hasExpertise}}{{localize "VARLYN.ExpertiseRemove"}}{{else}}{{localize "VARLYN.ExpertiseGrant"}}{{/if}}">
+            <i class="fas fa-star"></i>
+          </a>
+          {{else}}
+            {{#if skill.hasExpertise}}
+            <i class="fas fa-star skill-expertise-icon" title="{{localize "VARLYN.Expertise"}}"></i>
+            {{/if}}
+          {{/if}}
+        {{/if}}
+
+      </div>
+    </li>
+    {{/each}}
+  </ul>
+</div>
+{{/each}}
