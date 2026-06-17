@@ -385,6 +385,9 @@ export class EntitySheetHelper {
     const groupHeader = a.closest(".group-header");
     const groupContainer = groupHeader.closest(".group");
     const group = $(groupHeader).find(".group-key");
+
+    // TODO: Migrate to DialogV2 (ApplicationV2 framework) in future phase
+    // Dialog V1 is deprecated since v13, will be removed in v16
     // Create a dialog to confirm group deletion.
     new Dialog({
       title: game.i18n.localize("SIMPLE.DeleteGroup"),
@@ -539,7 +542,7 @@ export class EntitySheetHelper {
 
     // Render the document creation form
     const template = "templates/sidebar/document-create.html";
-    const html = await renderTemplate(template, {
+    const html = await foundry.applications.handlebars.renderTemplate(template, {
       name: data.name || game.i18n.format("DOCUMENT.New", { type: label }),
       folder: data.folder,
       folders: folders,
@@ -549,6 +552,8 @@ export class EntitySheetHelper {
       hasTypes: true,
     });
 
+    // TODO: Migrate to DialogV2 (ApplicationV2 framework) in future phase
+    // Dialog V1 is deprecated since v13, will be removed in v16
     // Render the confirmation dialog window
     return Dialog.prompt({
       title: title,

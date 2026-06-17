@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.3.1 - Foundry VTT v14 API Modernization (Completed)
+
+**Fixed:**
+- Replaced deprecated `renderTemplate` global with `foundry.applications.handlebars.renderTemplate`
+- Added TODO comments for Dialog V1 → DialogV2 migration (will be addressed in future phase)
+- Eliminated console warnings about deprecated API usage
+
+**Changed:**
+- Updated helper.js to use modern Foundry VTT v14 APIs
+- Verified all utility functions already use `foundry.utils.*` namespace
+
+**Technical:**
+- Dialog V1 framework still functional but marked for future migration
+- System now cleaner in v14 console with fewer deprecation warnings
+- Remaining deprecations documented with TODO comments for Phase 1+
+
 ### Phase 0.3 - CI/CD Pipeline (Completed)
 
 **Added:**
