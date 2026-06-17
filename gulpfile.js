@@ -29,5 +29,6 @@ function watchUpdates() {
 /*  Export Tasks
 /* ----------------------------------------- */
 
-exports.default = gulp.series(gulp.parallel(css), watchUpdates);
+exports.default = css;
+exports.watch = gulp.series(css, watchUpdates);
 exports.css = css;
