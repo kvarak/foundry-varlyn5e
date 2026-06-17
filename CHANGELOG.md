@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.5 - Documentation Structure (Completed)
+
+**Added:**
+- Created CONTRIBUTING.md with coding standards and PR process
+- Created docs/ARCHITECTURE.md with system design overview
+- Created docs/DATA-MODEL.md with planned actor/item schemas
+- Created docs/VARLYN-RULES.md with rule summaries and links to dnd.rigo.nu
+- Created docs/MIGRATION.md with Roll20 and D&D 5e system migration guides
+
+**Documentation:**
+- Complete contributor onboarding guide
+- Architecture overview with phase roadmap
+- Target data schemas for Phase 1.1+ implementation
+- Varlyn rules reference (7 abilities, skills, folk, weapon groups)
+- Migration paths from Roll20 and official D&D 5e system
+
+**Status:** Phase 0.5 complete ✅ - Documentation structure fully established
+
 ### Phase 0.4 - Development Environment (Completed)
 
 **Added:**
