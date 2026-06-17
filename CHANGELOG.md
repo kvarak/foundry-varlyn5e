@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.4 - Development Environment (Completed)
+
+**Added:**
+- Created DEVELOPMENT.md with comprehensive setup guide
+- Added VS Code workspace settings (`.vscode/settings.json`)
+- Added VS Code launch configuration for debugging
+- Enhanced package.json scripts: `dev`, `build`, `css`, `watch`, `pack`
+- Platform-specific symlink instructions (Linux, macOS, Windows)
+- Hot-reload development workflow documentation
+
+**Changed:**
+- Updated .gitignore to properly handle VS Code settings
+- Improved developer onboarding experience
+
+**Documentation:**
+- Complete local development setup guide
+- Symlink setup for hot-reload
+- Build command reference
+- Project structure overview
+- Debugging instructions
+
+**Status:** Phase 0.4 complete ✅ - Development environment fully documented and configured
+
 ### Phase 0.3.4 - V2 Migration Assessment & Planning (Completed)
 
 **Documented:**
