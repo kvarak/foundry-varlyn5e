@@ -1,13 +1,17 @@
 {
-  "id": "worldbuilding",
-  "version": "0.8.2",
-  "title": "Simple World-Building",
-  "url": "https://github.com/foundryvtt/worldbuilding/",
-  "description": "A minimalist game system which provides configurable Actor and Item templates to support free-form system agnostic game-play.",
+  "id": "varlyn5e",
+  "version": "0.1.0",
+  "title": "Varlyn D&D 5e",
+  "url": "https://github.com/kvarak/dnd/",
+  "description": "Varlyn homebrew D&D 5e system for Foundry VTT. Features custom skill system, folk (races), weapon groups, and 18+ unique classes. Based on the world-building system.",
   "license": "LICENSE.txt",
   "authors": [
     {
-      "name": "Atropos",
+      "name": "Uppsala Rollspel",
+      "url": "https://dnd.rigo.nu"
+    },
+    {
+      "name": "Atropos (Original World-Building System)",
       "url": "https://foundryvtt.com"
     }
   ],
@@ -27,8 +31,9 @@
     }
   ],
   "compatibility": {
-    "minimum": "10",
-    "verified": "11"
+    "minimum": "12",
+    "verified": "14",
+    "maximum": "14"
   },
   "grid": {
     "distance": 5,
@@ -36,6 +41,9 @@
   },
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "power",
-  "manifest": "https://raw.githubusercontent.com/foundryvtt/worldbuilding/master/system.json",
-  "download": "https://github.com/foundryvtt/worldbuilding/archive/refs/tags/release-082.zip"
+  "manifest": "https://github.com/kvarak/dnd/releases/latest/download/system.json",
+  "download": "https://github.com/kvarak/dnd/releases/latest/download/varlyn5e.zip",
+  "readme": "https://github.com/kvarak/dnd/tree/main/foundry-varlyn5e/README.md",
+  "bugs": "https://github.com/kvarak/dnd/issues",
+  "changelog": "https://github.com/kvarak/dnd/blob/main/foundry-varlyn5e/CHANGELOG.md"
 }

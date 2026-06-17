@@ -1,8 +1,10 @@
 {
-  "name": "worldbuilding",
-  "version": "1.0.0",
-  "description": "CSS compiler for the Worldbuilding system",
+  "name": "varlyn5e",
+  "version": "0.1.0",
+  "description": "Varlyn D&D 5e system for Foundry VTT",
   "scripts": {
+    "build": "gulp css",
+    "dev": "gulp",
     "css": "gulp css",
     "watch": "gulp",
     "gulp": "gulp"
@@ -10,7 +12,7 @@
   "browserslist": [
     "last 3 versions"
   ],
-  "author": "",
+  "author": "Uppsala Rollspel",
   "license": "MIT",
   "private": true,
   "dependencies": {
