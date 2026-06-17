@@ -143,18 +143,35 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
 
   /* -------------------------------------------- */
 
+  /**
+   * Activate a tab by directly toggling active classes on nav items and content divs.
+   * Avoids using changeTab() whose API varies across Foundry v14 builds.
+   * @param {string} tab  The tab name to activate.
+   */
+  _activateTab(tab) {
+    this.tabGroups.primary = tab;
+    this.element.querySelectorAll(".sheet-tabs .item[data-tab]").forEach((el) => {
+      el.classList.toggle("active", el.dataset.tab === tab);
+    });
+    this.element.querySelectorAll(".sheet-body .tab[data-group='primary']").forEach((el) => {
+      el.classList.toggle("active", el.dataset.tab === tab);
+    });
+  }
+
+  /* -------------------------------------------- */
+
   /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
 
-    // Initialize active tab
-    this.changeTab(this.tabGroups.primary ?? "abilities", "primary");
+    // Initialize active tab (direct DOM manipulation — avoids changeTab API differences)
+    this._activateTab(this.tabGroups.primary ?? "abilities");
 
-    // Tab navigation
+    // Tab navigation click handlers
     this.element.querySelectorAll(".sheet-tabs .item[data-tab]").forEach((tab) => {
       tab.addEventListener("click", (event) => {
         event.preventDefault();
-        this.changeTab(event.currentTarget.dataset.tab, "primary");
+        this._activateTab(event.currentTarget.dataset.tab);
       });
     });
 

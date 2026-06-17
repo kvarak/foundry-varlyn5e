@@ -1,17 +1,17 @@
-.worldbuilding {
+.varlyn5e {
   /* Sheet Tabs */
   /* Items List */
   /* Attributes */
 }
-.worldbuilding .window-content {
+.varlyn5e .window-content {
   height: 100%;
   padding: 5px;
   overflow-y: hidden;
 }
-.worldbuilding form {
+.varlyn5e form {
   height: 100%;
 }
-.worldbuilding .sheet-header {
+.varlyn5e .sheet-header {
   flex: 0 0 100px;
   overflow: hidden;
   display: flex;
@@ -20,85 +20,89 @@
   justify-content: flex-start;
   margin-bottom: 10px;
 }
-.worldbuilding .sheet-header .profile-img {
+.varlyn5e .sheet-header .profile-img {
   flex: 0 0 100px;
   height: 100px;
   margin-right: 10px;
 }
-.worldbuilding .sheet-header .header-fields {
+.varlyn5e .sheet-header .header-fields {
   flex: 1;
   height: 100px;
 }
-.worldbuilding .sheet-header h1.charname {
+.varlyn5e .sheet-header h1.charname {
   height: 50px;
   padding: 0px;
   margin: 5px 0;
   border-bottom: 0;
 }
-.worldbuilding .sheet-header h1.charname input {
+.varlyn5e .sheet-header h1.charname input {
   width: 100%;
   height: 100%;
   margin: 0;
 }
-.worldbuilding .resource {
+.varlyn5e .resource {
   width: 50%;
   height: 40px;
   margin-top: 10px;
   float: left;
   text-align: center;
 }
-.worldbuilding .resource input {
+.varlyn5e .resource input {
   width: 100px;
   height: 28px;
 }
-.worldbuilding .tabs {
+.varlyn5e .tabs {
   flex: 0 0 40px;
   border-top: 1px solid #aaaaaa;
   border-bottom: 1px solid #aaaaaa;
 }
-.worldbuilding .tabs .item {
+.varlyn5e .tabs .item {
   line-height: 40px;
   font-weight: bold;
 }
-.worldbuilding .tabs .item.active {
+.varlyn5e .tabs .item.active {
   text-decoration: underline;
   text-shadow: none;
 }
-.worldbuilding .sheet-body {
+.varlyn5e .sheet-body {
   overflow: hidden;
 }
-.worldbuilding .sheet-body .tab {
+.varlyn5e .sheet-body .tab {
   height: 100%;
   overflow-y: auto;
+  display: none;
 }
-.worldbuilding .editor,
-.worldbuilding .editor-content {
+.varlyn5e .sheet-body .tab.active {
+  display: block;
+}
+.varlyn5e .editor,
+.varlyn5e .editor-content {
   height: 100%;
 }
-.worldbuilding .item-list {
+.varlyn5e .item-list {
   list-style: none;
   margin: 7px 0;
   padding: 0;
   overflow-y: auto;
 }
-.worldbuilding .item-list .item {
+.varlyn5e .item-list .item {
   min-height: 30px;
   line-height: 24px;
   padding: 3px 0;
   border-bottom: 1px solid #bbbbbb;
   align-items: stretch;
 }
-.worldbuilding .item-list .item img {
+.varlyn5e .item-list .item img {
   flex: 0 0 24px;
   margin-right: 5px;
 }
-.worldbuilding .item-list .item-name {
+.varlyn5e .item-list .item-name {
   margin: 0;
 }
-.worldbuilding .item-list .item-controls {
+.varlyn5e .item-list .item-controls {
   flex: 0 0 36px;
 }
-.worldbuilding .item-list .item-buttons {
+.varlyn5e .item-list .item-buttons {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -106,23 +110,23 @@
   flex: 2;
   justify-content: flex-start;
 }
-.worldbuilding .item-list .item-button {
+.varlyn5e .item-list .item-button {
   line-height: 1;
   font-size: 11px;
   flex: none;
   width: auto;
 }
-.worldbuilding .attributes {
+.varlyn5e .attributes {
   position: relative;
 }
-.worldbuilding .attributes .attribute-control,
-.worldbuilding .attributes .group-control {
+.varlyn5e .attributes .attribute-control,
+.varlyn5e .attributes .group-control {
   flex: 0 0 20px;
   text-align: center;
   line-height: 28px;
   border: none;
 }
-.worldbuilding .attributes .attribute-roll {
+.varlyn5e .attributes .attribute-roll {
   flex: 0 0 20px;
   text-align: center;
   border-bottom: none;
@@ -130,11 +134,11 @@
   align-items: center;
   justify-content: center;
 }
-.worldbuilding .attributes .group-prefix {
+.varlyn5e .attributes .group-prefix {
   height: 31px;
   margin-right: 10px;
 }
-.worldbuilding .attributes .button {
+.varlyn5e .attributes .button {
   width: 100%;
   flex: 1;
   margin: 0;
@@ -145,11 +149,11 @@
   line-height: 28px;
   display: block;
 }
-.worldbuilding .attributes .attribute-key {
+.varlyn5e .attributes .attribute-key {
   background: transparent;
   border: none;
 }
-.worldbuilding .attributes-header {
+.varlyn5e .attributes-header {
   position: sticky;
   top: 0;
   left: 0;
@@ -162,12 +166,12 @@
   text-align: left;
   font-weight: bold;
 }
-.worldbuilding .attributes-list {
+.varlyn5e .attributes-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.worldbuilding .attributes-list li > * {
+.varlyn5e .attributes-list li > * {
   margin: 0 3px;
   height: 28px;
   line-height: 24px;
@@ -176,47 +180,47 @@
   border-radius: 0;
   border-bottom: 1px solid #aaaaaa;
 }
-.worldbuilding .attributes-list .attribute-col label {
+.varlyn5e .attributes-list .attribute-col label {
   font-size: 10px;
   text-align: center;
   line-height: 1;
 }
-.worldbuilding .attributes-list .attribute-col input {
+.varlyn5e .attributes-list .attribute-col input {
   font-size: 11px;
   text-align: center;
   line-height: 1;
   height: 50%;
 }
-.worldbuilding .attribute input[type="text"]::placeholder,
-.worldbuilding .group-header input[type="text"]::placeholder {
+.varlyn5e .attribute input[type="text"]::placeholder,
+.varlyn5e .group-header input[type="text"]::placeholder {
   opacity: 0;
   transition: opacity 0.25s ease-in-out;
 }
-.worldbuilding .attribute input[type="text"]:focus::placeholder,
-.worldbuilding .group-header input[type="text"]:focus::placeholder {
+.varlyn5e .attribute input[type="text"]:focus::placeholder,
+.varlyn5e .group-header input[type="text"]:focus::placeholder {
   opacity: 1;
 }
-.worldbuilding .group-controls {
+.varlyn5e .group-controls {
   margin: 5px;
 }
-.worldbuilding .groups-list {
+.varlyn5e .groups-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.worldbuilding .group {
+.varlyn5e .group {
   margin: 5px 0 0;
   padding: 0;
 }
-.worldbuilding .group-header {
+.varlyn5e .group-header {
   align-items: center;
   background: #000000;
   border: 1px solid #aaaaaa;
   border-radius: 2px;
   padding: 2px 5px;
 }
-.worldbuilding .group-key,
-.worldbuilding .group-label {
+.varlyn5e .group-key,
+.varlyn5e .group-label {
   font-weight: bold;
   border: none;
   border-bottom: 1px solid #aaaaaa;
@@ -224,24 +228,198 @@
   border-radius: 0;
   margin-right: 6px;
 }
-.worldbuilding .group-key {
+.varlyn5e .group-key {
   opacity: 0.75;
 }
-.worldbuilding .group-label {
+.varlyn5e .group-label {
   flex: 2;
 }
-.worldbuilding .group-dtype {
+.varlyn5e .group-dtype {
   height: 24px;
   flex: 0 0 116px;
   margin: 0 5px;
 }
-.worldbuilding.sheet.actor {
-  min-width: 560px;
-  min-height: 420px;
+.varlyn5e.sheet.actor {
+  min-width: 600px;
+  min-height: 500px;
 }
-.worldbuilding.sheet.item {
+.varlyn5e.sheet.item {
   min-width: 460px;
   min-height: 400px;
+}
+/* ─── Abilities Grid ──────────────────────────────────────────────────────── */
+.abilities-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  padding: 10px 5px;
+}
+.abilities-grid .ability-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #aaaaaa;
+  border-radius: 5px;
+  padding: 5px 3px;
+  background: #000000;
+}
+.abilities-grid .ability-block .ability-label {
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.abilities-grid .ability-block .ability-score {
+  width: 44px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  height: 28px;
+  border-bottom: 1px solid #aaaaaa;
+}
+.abilities-grid .ability-block .ability-mod {
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 1px 6px;
+  border-radius: 3px;
+  text-decoration: none;
+}
+.abilities-grid .ability-block .ability-mod:hover {
+  background: #000000;
+}
+/* ─── Skills ─────────────────────────────────────────────────────────────── */
+.skills-tab-content {
+  height: 100%;
+  overflow-y: auto;
+}
+.skill-points-bar {
+  padding: 4px 10px;
+  background: #000000;
+  border-bottom: 1px solid #aaaaaa;
+  font-size: 12px;
+  gap: 8px;
+}
+.skill-category-header {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 8px;
+  background: #000000;
+  margin: 0;
+  border-bottom: 1px solid #cccccc;
+}
+.skill-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.skill-list .skill-item {
+  border-bottom: 1px solid #000000;
+}
+.skill-list .skill-item:hover {
+  background: #000000;
+}
+.skill-list .skill-item .skill-row {
+  min-height: 22px;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 5px;
+}
+.skill-list .skill-item .skill-name {
+  flex: 1;
+  font-size: 12px;
+}
+.skill-list .skill-item .skill-name.rollable {
+  cursor: pointer;
+}
+.skill-list .skill-item .skill-name.rollable:hover {
+  text-decoration: underline;
+}
+.skill-list .skill-item .skill-ability {
+  font-size: 10px;
+  color: #666666;
+  width: 28px;
+  text-align: center;
+}
+.skill-list .skill-item .skill-mod {
+  font-size: 11px;
+  font-weight: bold;
+  width: 24px;
+  text-align: right;
+}
+.skill-list .skill-item .skill-icon.skill-owned {
+  color: #4a7c59;
+  font-size: 10px;
+  width: 14px;
+}
+.skill-list .skill-item .skill-icon.skill-locked {
+  color: #cccccc;
+  font-size: 10px;
+  width: 14px;
+}
+.skill-list .skill-item .skill-expertise-icon {
+  color: #c9a227;
+}
+.skill-list .skill-item .skill-control {
+  cursor: pointer;
+  font-size: 11px;
+  color: #777777;
+  width: 14px;
+  text-align: center;
+}
+.skill-list .skill-item .skill-control:hover {
+  color: #000000;
+}
+.skill-list .skill-item .skill-control.active {
+  color: #c9a227;
+}
+/* ─── Character Details ──────────────────────────────────────────────────── */
+.character-details {
+  padding: 5px 0 10px;
+}
+.character-details .detail-row {
+  margin-bottom: 5px;
+  align-items: center;
+}
+.character-details .detail-row label {
+  flex: 0 0 60px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.character-details .detail-row input {
+  flex: 1;
+  height: 26px;
+}
+/* ─── Header Stats ───────────────────────────────────────────────────────── */
+.header-stats {
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+.header-stats .resource {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 0;
+  float: none;
+  width: auto;
+  height: auto;
+}
+.header-stats .resource label {
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.header-stats .resource input {
+  width: 48px;
+  height: 26px;
+}
+.header-stats .level-box {
+  margin-left: auto;
+}
+.header-stats .level-box input {
+  width: 40px;
 }
 
 /*# sourceMappingURL=simple.css.map */
