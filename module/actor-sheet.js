@@ -390,7 +390,7 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(foundry.applica
       const form = this.form; // ApplicationV2 accessor — HTMLFormElement | null
       if (form) {
         try {
-          const fd = new FormDataExtended(form);
+          const fd = new foundry.applications.ux.FormDataExtended(form);
           let data = foundry.utils.flattenObject(fd.object);
           data = EntitySheetHelper.updateAttributes(data, this.document);
           data = EntitySheetHelper.updateGroups(data, this.document);
