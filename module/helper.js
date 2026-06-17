@@ -386,27 +386,23 @@ export class EntitySheetHelper {
     const groupContainer = groupHeader.closest(".group");
     const group = $(groupHeader).find(".group-key");
 
-    // TODO: Migrate to DialogV2 (ApplicationV2 framework) in future phase
-    // Dialog V1 is deprecated since v13, will be removed in v16
-    // Create a dialog to confirm group deletion.
-    new Dialog({
-      title: game.i18n.localize("SIMPLE.DeleteGroup"),
+    // Create a confirmation dialog using DialogV2 (ApplicationV2)
+    foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("SIMPLE.DeleteGroup") },
       content: `${game.i18n.localize("SIMPLE.DeleteGroupContent")} <strong>${group.val()}</strong>`,
-      buttons: {
-        confirm: {
-          icon: '<i class="fas fa-trash"></i>',
-          label: game.i18n.localize("Yes"),
-          callback: async () => {
-            groupContainer.parentElement.removeChild(groupContainer);
-            await app._onSubmit(event);
-          },
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize("No"),
+      yes: {
+        icon: '<i class="fas fa-trash"></i>',
+        label: game.i18n.localize("Yes"),
+        callback: async () => {
+          groupContainer.parentElement.removeChild(groupContainer);
+          await app._onSubmit(event);
         },
       },
-    }).render(true);
+      no: {
+        icon: '<i class="fas fa-times"></i>',
+        label: game.i18n.localize("No"),
+      },
+    });
   }
 
   /* -------------------------------------------- */
@@ -552,30 +548,30 @@ export class EntitySheetHelper {
       hasTypes: true,
     });
 
-    // TODO: Migrate to DialogV2 (ApplicationV2 framework) in future phase
-    // Dialog V1 is deprecated since v13, will be removed in v16
-    // Render the confirmation dialog window
-    return Dialog.prompt({
-      title: title,
+    // Render the confirmation dialog window using DialogV2 (ApplicationV2)
+    return foundry.applications.api.DialogV2.prompt({
+      window: { title: title },
       content: html,
-      label: title,
-      callback: (html) => {
-        // Get the form data
-        const form = html[0].querySelector("form");
-        const fd = new FormDataExtended(form);
-        let createData = fd.object;
+      ok: {
+        label: title,
+        callback: (event, button, dialog) => {
+          // Get the form data
+          const form = dialog.element.querySelector("form");
+          const fd = new FormDataExtended(form);
+          let createData = fd.object;
 
-        // Merge with template data
-        const template = collection.get(form.type.value);
-        if (template) {
-          createData = foundry.utils.mergeObject(template.toObject(), createData);
-          createData.type = template.type;
-          delete createData.flags.worldbuilding.isTemplate;
-        }
+          // Merge with template data
+          const template = collection.get(form.type.value);
+          if (template) {
+            createData = foundry.utils.mergeObject(template.toObject(), createData);
+            createData.type = template.type;
+            delete createData.flags.worldbuilding.isTemplate;
+          }
 
-        // Merge provided override data
-        createData = foundry.utils.mergeObject(createData, data, { inplace: false });
-        return this.create(createData, { renderSheet: true });
+          // Merge provided override data
+          createData = foundry.utils.mergeObject(createData, data, { inplace: false });
+          return this.create(createData, { renderSheet: true });
+        },
       },
       rejectClose: false,
       options: options,

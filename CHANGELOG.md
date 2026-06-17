@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.3.2 - Complete DialogV2 Migration (Completed)
+
+**Fixed:**
+- Migrated `Dialog.prompt()` to `foundry.applications.api.DialogV2.prompt()` in createDialog function
+- Migrated `new Dialog().render()` to `foundry.applications.api.DialogV2.confirm()` in deleteAttributeGroup function
+- Eliminated all Dialog V1 deprecation warnings from console
+
+**Changed:**
+- Updated helper.js to use ApplicationV2 framework for all dialog interactions
+- Dialog callbacks now receive `(event, button, dialog)` parameters instead of `(html)` (DialogV2 API)
+- Form access changed from `html[0].querySelector()` to `dialog.element.querySelector()`
+
+**Technical:**
+- Fully compliant with Foundry VTT v14+ ApplicationV2 framework
+- No remaining V1 Application deprecation warnings
+- System ready for Foundry VTT v16 (where V1 support will be removed)
+
 ### Phase 0.3.1 - Foundry VTT v14 API Modernization (Completed)
 
 **Fixed:**
