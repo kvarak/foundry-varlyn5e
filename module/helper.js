@@ -169,7 +169,7 @@ export class EntitySheetHelper {
     const button = event.currentTarget;
     const label = button.closest(".attribute").querySelector(".attribute-label")?.value;
     const chatLabel = label ?? button.parentElement.querySelector(".attribute-key").value;
-    const shorthand = game.settings.get("worldbuilding", "macroShorthand");
+    const shorthand = game.settings.get("varlyn5e", "macroShorthand");
 
     // Use the actor for rollData so that formulas are always in reference to the parent actor.
     const rollData = this.actor.getRollData();
@@ -527,7 +527,7 @@ export class EntitySheetHelper {
 
     // Identify the template Actor types
     const collection = game.collections.get(this.documentName);
-    const templates = collection.filter((a) => a.getFlag("worldbuilding", "isTemplate"));
+    const templates = collection.filter((a) => a.getFlag("varlyn5e", "isTemplate"));
     const defaultType = this.TYPES.filter((t) => t !== CONST.BASE_DOCUMENT_TYPE)[0] ?? CONST.BASE_DOCUMENT_TYPE;
     const types = {
       [defaultType]: game.i18n.localize("SIMPLE.NoTemplate"),
@@ -557,7 +557,7 @@ export class EntitySheetHelper {
         callback: (event, button, dialog) => {
           // Get the form data
           const form = dialog.element.querySelector("form");
-          const fd = new FormDataExtended(form);
+          const fd = new foundry.applications.ux.FormDataExtended(form);
           let createData = fd.object;
 
           // Merge with template data
@@ -565,7 +565,7 @@ export class EntitySheetHelper {
           if (template) {
             createData = foundry.utils.mergeObject(template.toObject(), createData);
             createData.type = template.type;
-            delete createData.flags.worldbuilding.isTemplate;
+            delete createData.flags.varlyn5e.isTemplate;
           }
 
           // Merge provided override data

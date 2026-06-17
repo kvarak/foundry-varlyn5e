@@ -9,8 +9,8 @@ export class SimpleItemSheet extends ItemSheet {
   /** @inheritdoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["worldbuilding", "sheet", "item"],
-      template: "systems/worldbuilding/templates/item-sheet.html",
+      classes: ["varlyn5e", "sheet", "item"],
+      template: "systems/varlyn5e/templates/item-sheet.html",
       width: 520,
       height: 480,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
@@ -26,10 +26,13 @@ export class SimpleItemSheet extends ItemSheet {
     EntitySheetHelper.getAttributeData(context.data);
     context.systemData = context.data.system;
     context.dtypes = ATTRIBUTE_TYPES;
-    context.descriptionHTML = await TextEditor.enrichHTML(context.systemData.description, {
-      secrets: this.document.isOwner,
-      async: true,
-    });
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      context.systemData.description,
+      {
+        secrets: this.document.isOwner,
+        async: true,
+      }
+    );
     return context;
   }
 

@@ -9,7 +9,7 @@ import { SimpleItem } from "./item.js";
 import { SimpleItemSheet } from "./item-sheet.js";
 import { SimpleActorSheet } from "./actor-sheet.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
-import { createWorldbuildingMacro } from "./macro.js";
+import { createVarlyn5eMacro } from "./macro.js";
 import { SimpleToken, SimpleTokenDocument } from "./token.js";
 
 /* -------------------------------------------- */
@@ -20,7 +20,7 @@ import { SimpleToken, SimpleTokenDocument } from "./token.js";
  * Init hook.
  */
 Hooks.once("init", async () => {
-  console.log("Initializing Simple Worldbuilding System");
+  console.log("Initializing Varlyn D&D 5e System");
 
   /**
    * Set an initiative formula for the system. This will be updated later.
@@ -31,9 +31,9 @@ Hooks.once("init", async () => {
     decimals: 2,
   };
 
-  game.worldbuilding = {
+  game.varlyn5e = {
     SimpleActor,
-    createWorldbuildingMacro,
+    createVarlyn5eMacro,
   };
 
   // Define custom Document classes
@@ -44,12 +44,12 @@ Hooks.once("init", async () => {
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("worldbuilding", SimpleActorSheet, { makeDefault: true });
+  Actors.registerSheet("varlyn5e", SimpleActorSheet, { makeDefault: true });
   Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("worldbuilding", SimpleItemSheet, { makeDefault: true });
+  Items.registerSheet("varlyn5e", SimpleItemSheet, { makeDefault: true });
 
   // Register system settings
-  game.settings.register("worldbuilding", "macroShorthand", {
+  game.settings.register("varlyn5e", "macroShorthand", {
     name: "SETTINGS.SimpleMacroShorthandN",
     hint: "SETTINGS.SimpleMacroShorthandL",
     scope: "world",
@@ -59,7 +59,7 @@ Hooks.once("init", async () => {
   });
 
   // Register initiative setting.
-  game.settings.register("worldbuilding", "initFormula", {
+  game.settings.register("varlyn5e", "initFormula", {
     name: "SETTINGS.SimpleInitFormulaN",
     hint: "SETTINGS.SimpleInitFormulaL",
     scope: "world",
@@ -70,7 +70,7 @@ Hooks.once("init", async () => {
   });
 
   // Retrieve and assign the initiative formula setting.
-  const initFormula = game.settings.get("worldbuilding", "initFormula");
+  const initFormula = game.settings.get("varlyn5e", "initFormula");
   _simpleUpdateInit(initFormula);
 
   /**
@@ -101,7 +101,7 @@ Hooks.once("init", async () => {
 /**
  * Macrobar hook.
  */
-Hooks.on("hotbarDrop", (bar, data, slot) => createWorldbuildingMacro(data, slot));
+Hooks.on("hotbarDrop", (bar, data, slot) => createVarlyn5eMacro(data, slot));
 
 /**
  * Adds the actor template context menu.
@@ -117,7 +117,7 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
     },
     callback: (li) => {
       const actor = game.actors.get(li.data("documentId"));
-      actor.setFlag("worldbuilding", "isTemplate", true);
+      actor.setFlag("varlyn5e", "isTemplate", true);
     },
   });
 
@@ -131,7 +131,7 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
     },
     callback: (li) => {
       const actor = game.actors.get(li.data("documentId"));
-      actor.setFlag("worldbuilding", "isTemplate", false);
+      actor.setFlag("varlyn5e", "isTemplate", false);
     },
   });
 });
@@ -150,7 +150,7 @@ Hooks.on("getItemDirectoryEntryContext", (html, options) => {
     },
     callback: (li) => {
       const item = game.items.get(li.data("documentId"));
-      item.setFlag("worldbuilding", "isTemplate", true);
+      item.setFlag("varlyn5e", "isTemplate", true);
     },
   });
 
@@ -164,7 +164,7 @@ Hooks.on("getItemDirectoryEntryContext", (html, options) => {
     },
     callback: (li) => {
       const item = game.items.get(li.data("documentId"));
-      item.setFlag("worldbuilding", "isTemplate", false);
+      item.setFlag("varlyn5e", "isTemplate", false);
     },
   });
 });

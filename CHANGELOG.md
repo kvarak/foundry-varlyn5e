@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.3.3 - Complete System Identity Migration (Completed)
+
+**Fixed:**
+- Replaced all `FormDataExtended` → `foundry.applications.ux.FormDataExtended`
+- Replaced all `TextEditor` → `foundry.applications.ux.TextEditor.implementation`
+- Fixed template paths from `systems/worldbuilding/` → `systems/varlyn5e/`
+- Fixed CSS classes from `worldbuilding` → `varlyn5e`
+- Fixed all settings references from `worldbuilding` → `varlyn5e` namespace
+- Fixed all flag references from `worldbuilding` → `varlyn5e` namespace
+- Updated function names: `createWorldbuildingMacro` → `createVarlyn5eMacro`
+- Updated global API: `game.worldbuilding` → `game.varlyn5e`
+
+**Changed:**
+- System fully branded as varlyn5e throughout entire codebase
+- All template paths now point to correct system directory
+- All module references use proper varlyn5e system ID
+- Eliminated all hardcoded worldbuilding references
+
+**Impact:**
+- **CRITICAL FIX**: Resolves "ENOENT: no such file or directory" template errors
+- Eliminates FormDataExtended and TextEditor deprecation warnings
+- System now fully independent from worldbuilding system
+- All settings and flags use correct varlyn5e namespace
+- Proper system identity for multi-system Foundry installations
+
+**Technical:**
+- Affects: helper.js, actor.js, item.js, actor-sheet.js, item-sheet.js, simple.js, macro.js, templates.js
+- All v13 deprecated APIs now using v14+ namespaced versions
+- Zero remaining worldbuilding references in module code
+
 ### Phase 0.3.2 - Complete DialogV2 Migration (Completed)
 
 **Fixed:**
