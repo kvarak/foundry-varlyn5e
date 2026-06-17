@@ -2,8 +2,8 @@
   "id": "varlyn5e",
   "version": "0.1.0",
   "title": "Varlyn D&D 5e",
-  "url": "https://github.com/kvarak/dnd/",
-  "description": "Varlyn homebrew D&D 5e system for Foundry VTT. Features custom skill system, folk (races), weapon groups, and 18+ unique classes. Based on the world-building system.",
+  "url": "https://github.com/kvarak/foundry-varlyn5e/",
+  "description": "Varlyn homebrew D&D 5e system for Foundry VTT v14+. Features custom skill system, folk (races), weapon groups, and 18+ unique classes. Note: v0.x uses V1 Application framework (known warnings, v1.0 will migrate to V2).",
   "license": "LICENSE.txt",
   "authors": [
     {
@@ -41,9 +41,9 @@
   },
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "power",
-  "manifest": "https://github.com/kvarak/dnd/releases/latest/download/system.json",
-  "download": "https://github.com/kvarak/dnd/releases/latest/download/varlyn5e.zip",
-  "readme": "https://github.com/kvarak/dnd/tree/main/foundry-varlyn5e/README.md",
-  "bugs": "https://github.com/kvarak/dnd/issues",
-  "changelog": "https://github.com/kvarak/dnd/blob/main/foundry-varlyn5e/CHANGELOG.md"
+  "manifest": "https://github.com/kvarak/foundry-varlyn5e/releases/latest/download/system.json",
+  "download": "https://github.com/kvarak/foundry-varlyn5e/releases/latest/download/varlyn5e.zip",
+  "readme": "https://github.com/kvarak/foundry-varlyn5e/blob/main/README.md",
+  "bugs": "https://github.com/kvarak/foundry-varlyn5e/issues",
+  "changelog": "https://github.com/kvarak/foundry-varlyn5e/blob/main/CHANGELOG.md"
 }

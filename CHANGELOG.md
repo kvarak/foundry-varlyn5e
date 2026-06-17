@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.3.4 - V2 Migration Assessment & Planning (Completed)
+
+**Documented:**
+- Created comprehensive V2-MIGRATION-ASSESSMENT.md analyzing ApplicationV2 migration
+- Documented root cause of V1 Application framework warnings
+- Defined Phase 1.0: V2 Sheet Migration as major architectural milestone
+- Estimated effort: 22-30 hours for complete V2 migration
+- Timeline: v0.x accepts V1 warnings, v1.0 will complete V2 migration
+
+**Fixed:**
+- Updated system.json URLs to point to correct GitHub repository (foundry-varlyn5e)
+- Added compatibility note about V1 warnings in system description
+- Clarified Foundry v14+ requirement
+
+**Changed:**
+- Restructured VARLYN-FOUNDRY-PLAN.md with Phase 1.0 (V2 Migration) before Phase 1.1+ (Core Engine)
+- Acknowledged V1 Application warnings as known technical debt
+- V1 framework functional until Foundry v16 (current: v14)
+
+**Status:** Phase 0.3.4 complete ✅ - V2 migration path documented, system URLs corrected
+
+**Known Issue:**
+- V1 Application framework deprecation warnings present (by design)
+- Will be resolved in Phase 1.0 (v1.0.0 release)
+- Sheets remain functional, warning does not affect gameplay
+
 ### Phase 0.3.3 - Complete System Identity Migration (Completed)
 
 **Fixed:**
