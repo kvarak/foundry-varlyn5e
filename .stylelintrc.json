@@ -1,0 +1,14 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "color-hex-length": "long",
+    "selector-class-pattern": null,
+    "no-descending-specificity": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "rule-empty-line-before": null,
+    "length-zero-no-unit": null,
+    "alpha-value-notation": "number",
+    "color-function-notation": "legacy"
+  },
+  "ignoreFiles": ["node_modules/**", "styles/**/*.css"]
+}

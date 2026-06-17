@@ -1,12 +1,11 @@
 import { EntitySheetHelper } from "./helper.js";
-import {ATTRIBUTE_TYPES} from "./constants.js";
+import { ATTRIBUTE_TYPES } from "./constants.js";
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
 export class SimpleItemSheet extends ItemSheet {
-
   /** @inheritdoc */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
@@ -14,7 +13,7 @@ export class SimpleItemSheet extends ItemSheet {
       template: "systems/worldbuilding/templates/item-sheet.html",
       width: 520,
       height: 480,
-      tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}],
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
       scrollY: [".attributes"],
     });
   }
@@ -29,7 +28,7 @@ export class SimpleItemSheet extends ItemSheet {
     context.dtypes = ATTRIBUTE_TYPES;
     context.descriptionHTML = await TextEditor.enrichHTML(context.systemData.description, {
       secrets: this.document.isOwner,
-      async: true
+      async: true,
     });
     return context;
   }
@@ -41,7 +40,7 @@ export class SimpleItemSheet extends ItemSheet {
     super.activateListeners(html);
 
     // Everything below here is only needed if the sheet is editable
-    if ( !this.isEditable ) return;
+    if (!this.isEditable) return;
 
     // Attribute Management
     html.find(".attributes").on("click", ".attribute-control", EntitySheetHelper.onClickAttributeControl.bind(this));
@@ -51,10 +50,14 @@ export class SimpleItemSheet extends ItemSheet {
     // Add draggable for Macro creation
     html.find(".attributes a.attribute-roll").each((i, a) => {
       a.setAttribute("draggable", true);
-      a.addEventListener("dragstart", ev => {
-        let dragData = ev.currentTarget.dataset;
-        ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-      }, false);
+      a.addEventListener(
+        "dragstart",
+        (ev) => {
+          const dragData = ev.currentTarget.dataset;
+          ev.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+        },
+        false
+      );
     });
   }
 

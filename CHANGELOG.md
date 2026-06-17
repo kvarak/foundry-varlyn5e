@@ -7,8 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.2 - Build System Modernization (Completed)
+
+**Added:**
+- ESLint configuration with comprehensive Foundry VTT globals
+- Stylelint configuration for LESS/CSS linting
+- Prettier configuration for consistent code formatting
+- Husky + lint-staged for pre-commit quality checks
+- Source maps support in gulp LESS compilation
+- npm scripts for linting and formatting:
+  - `npm run lint` - Run all linters
+  - `npm run lint:js` - Lint JavaScript files
+  - `npm run lint:css` - Lint LESS/CSS files
+  - `npm run lint:fix` - Auto-fix linting issues
+  - `npm run format` - Format all files with Prettier
+  - `npm run format:check` - Check formatting without changes
+
+**Changed:**
+- Updated gulpfile.js to include source maps for debugging
+- Auto-fixed numerous code style issues in existing files
+- Improved code consistency across JavaScript modules
+
+**Technical:**
+- 632 dev dependencies added for development tooling
+- Pre-commit hooks now enforce code quality standards
+- Build system kept as gulp + LESS (stable, proven approach)
+
 ### Planned
-- Phase 0.2: Build system modernization
 - Phase 0.3: CI/CD pipeline setup
 - Phase 0.4: Development environment
 - Phase 0.5: Documentation structure

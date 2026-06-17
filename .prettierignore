@@ -1,0 +1,8 @@
+node_modules/
+.git/
+styles/*.css
+packs/
+*.min.js
+*.min.css
+CHANGELOG.md
+package-lock.json

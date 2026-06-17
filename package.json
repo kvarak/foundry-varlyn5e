@@ -7,7 +7,14 @@
     "dev": "gulp",
     "css": "gulp css",
     "watch": "gulp",
-    "gulp": "gulp"
+    "gulp": "gulp",
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint .",
+    "lint:css": "stylelint \"styles/**/*.less\"",
+    "lint:fix": "npm run lint:js -- --fix && npm run lint:css -- --fix",
+    "format": "prettier --write \"**/*.{js,json,css,less,md}\"",
+    "format:check": "prettier --check \"**/*.{js,json,css,less,md}\"",
+    "prepare": "husky"
   },
   "browserslist": [
     "last 3 versions"
@@ -19,5 +26,29 @@
     "gulp": "^4.0.2",
     "gulp-less": "^4.0.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "eslint-plugin-foundry-vtt": "^0.0.1",
+    "globals": "^17.6.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.4",
+    "stylelint": "^17.13.0",
+    "stylelint-config-standard": "^40.0.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.less": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
 }
