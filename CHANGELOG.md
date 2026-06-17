@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 0.3 - CI/CD Pipeline (Completed)
+
+**Added:**
+- GitHub Actions workflows for automated releases:
+  - `dev-release.yml` - Automatic development builds on push to main/dev
+  - `release.yml` - Stable releases on version tags (release-* or v*.*.*)
+  - `pr-checks.yml` - Pull request validation (linting, build, manifest validation)
+- Automated versioning with timestamps and commit SHAs for dev builds
+- Automatic ZIP packaging with all required system files
+- GitHub Releases integration with manifest URLs for Foundry VTT
+- system.json and package.json validation in CI
+
+**Changed:**
+- Development builds now automatically tagged as "latest" pre-release
+- Release manifests automatically updated with correct download URLs
+- Changelog extraction for release notes
+
+**Technical:**
+- Node.js 22 used in all workflows (matching local environment)
+- npm ci ensures reproducible builds
+- Linting enforced before stable releases
+- Version consistency checks between system.json and package.json
+
 ### Phase 0.2 - Build System Modernization (Completed)
 
 **Added:**
@@ -34,9 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build system kept as gulp + LESS (stable, proven approach)
 
 ### Planned
-- Phase 0.3: CI/CD pipeline setup
-- Phase 0.4: Development environment
-- Phase 0.5: Documentation structure
+- Phase 0.4: Development environment documentation
+- Phase 0.5: Extended documentation structure
+- Phase 1: Core game engine (7 abilities, skills, folk, classes)
 
 ## [0.1.0] - 2026-06-17
 

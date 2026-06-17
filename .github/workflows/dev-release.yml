@@ -1,0 +1,116 @@
+name: Development Release
+
+env:
+  NODE_VERSION: 22
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load package ID
+      id: package-id
+      uses: ActionsTools/read-json-action@main
+      with:
+        file_path: "./system.json"
+        prop_path: "id"
+
+    - name: Load package version
+      id: package-version
+      uses: ActionsTools/read-json-action@main
+      with:
+        file_path: "./system.json"
+        prop_path: "version"
+
+    # Set up variables for development release
+    - name: Set up variables
+      id: get_vars
+      run: |
+        PACKAGE_ID=${{ steps.package-id.outputs.value }}
+        PACKAGE_VERSION=${{ steps.package-version.outputs.value }}
+        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+
+        echo "PACKAGE_ID=$PACKAGE_ID" >> $GITHUB_ENV
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+        echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+        echo "DEV_VERSION=$PACKAGE_VERSION-dev.$TIMESTAMP.$SHORT_SHA" >> $GITHUB_ENV
+        echo "ZIP_NAME=$PACKAGE_ID-$PACKAGE_VERSION-dev.$TIMESTAMP.zip" >> $GITHUB_ENV
+        echo "RELEASE_DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/download/latest/$PACKAGE_ID-$PACKAGE_VERSION-dev.$TIMESTAMP.zip" >> $GITHUB_ENV
+        echo "RELEASE_INSTALL_URL=https://github.com/${{ github.repository }}/releases/download/latest/system.json" >> $GITHUB_ENV
+
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build CSS
+      run: npm run build
+
+    - name: Update manifest for dev release
+      uses: TomaszKandula/variable-substitution@v1.0.2
+      with:
+        files: "system.json"
+      env:
+        version: ${{ env.DEV_VERSION }}
+        download: ${{ env.RELEASE_DOWNLOAD_URL }}
+        manifest: ${{ env.RELEASE_INSTALL_URL }}
+
+    # Create zip archive
+    - name: Create archive
+      run: |
+        zip -r ${{ env.ZIP_NAME }} \
+          system.json \
+          template.json \
+          LICENSE.txt \
+          README.md \
+          CHANGELOG.md \
+          lang/ \
+          module/ \
+          styles/ \
+          templates/
+
+    # Create the release and attach the zip
+    - name: Update Development Release
+      id: create_release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        name: Development Build
+        draft: false
+        prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: './system.json, ./${{ env.ZIP_NAME }}'
+        tag: latest
+        body: |
+          **This is a development build** - Use at your own risk!
+
+          **Version**: ${{ env.DEV_VERSION }}
+          **Commit**: ${{ github.sha }}
+          **Build Date**: ${{ github.event.head_commit.timestamp }}
+
+          ## Installation
+          Paste this manifest URL into Foundry VTT:
+          ```
+          ${{ env.RELEASE_INSTALL_URL }}
+          ```
+
+          ## Changes
+          ${{ github.event.head_commit.message }}
+
+          ---
+          *Development builds are automatically generated on every push to main/dev branches.*

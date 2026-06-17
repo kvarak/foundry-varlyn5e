@@ -1,0 +1,130 @@
+name: Release Creation
+
+env:
+  NODE_VERSION: 22
+
+on:
+  push:
+    tags:
+      - 'release-*'
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load package ID
+      id: package-id
+      uses: ActionsTools/read-json-action@main
+      with:
+        file_path: "./system.json"
+        prop_path: "id"
+
+    # Extract version from tag
+    # Tag format: release-1.0.0 or v1.0.0
+    - name: Set up variables
+      id: get_vars
+      run: |
+        TAG=${GITHUB_REF/refs\/tags\//}
+        PACKAGE_ID=${{ steps.package-id.outputs.value }}
+
+        # Extract version from tag (handle both release-X.X.X and vX.X.X formats)
+        if [[ $TAG == release-* ]]; then
+          VERSION=${TAG#release-}
+        elif [[ $TAG == v* ]]; then
+          VERSION=${TAG#v}
+        else
+          VERSION=$TAG
+        fi
+
+        echo "TAG_NAME=$TAG" >> $GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "PACKAGE_ID=$PACKAGE_ID" >> $GITHUB_ENV
+        echo "ZIP_NAME=$PACKAGE_ID-$VERSION.zip" >> $GITHUB_ENV
+        echo "RELEASE_DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/download/$TAG/$PACKAGE_ID-$VERSION.zip" >> $GITHUB_ENV
+        echo "RELEASE_INSTALL_URL=https://github.com/${{ github.repository }}/releases/download/$TAG/system.json" >> $GITHUB_ENV
+
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Linting
+      run: npm run lint
+
+    - name: Build CSS
+      run: npm run build
+
+    - name: Update manifest for release
+      uses: TomaszKandula/variable-substitution@v1.0.2
+      with:
+        files: "system.json"
+      env:
+        version: ${{ env.VERSION }}
+        download: ${{ env.RELEASE_DOWNLOAD_URL }}
+        manifest: ${{ env.RELEASE_INSTALL_URL }}
+
+    # Create zip archive
+    - name: Create archive
+      run: |
+        zip -r ${{ env.ZIP_NAME }} \
+          system.json \
+          template.json \
+          LICENSE.txt \
+          README.md \
+          CHANGELOG.md \
+          lang/ \
+          module/ \
+          styles/ \
+          templates/
+
+    # Extract changelog for this version
+    - name: Extract changelog
+      id: changelog
+      run: |
+        # Extract the changelog section for this version
+        CHANGELOG=$(sed -n "/## \[${{ env.VERSION }}\]/,/## \[/p" CHANGELOG.md | sed '$d')
+        if [ -z "$CHANGELOG" ]; then
+          CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
+        fi
+        # Use a delimiter to handle multiline output
+        echo "CHANGELOG<<EOF" >> $GITHUB_ENV
+        echo "$CHANGELOG" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    # Create the release
+    - name: Create Release
+      id: create_release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: false
+        name: Release ${{ env.VERSION }}
+        draft: false
+        prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: './system.json, ./${{ env.ZIP_NAME }}'
+        tag: ${{ env.TAG_NAME }}
+        body: |
+          **Varlyn D&D 5e System** - Version ${{ env.VERSION }}
+
+          ## Installation
+          Paste this manifest URL into Foundry VTT:
+          ```
+          ${{ env.RELEASE_INSTALL_URL }}
+          ```
+
+          ## What's Changed
+          ${{ env.CHANGELOG }}
+
+          ---
+          **Full Documentation**: https://dnd.rigo.nu
+          **Report Issues**: https://github.com/${{ github.repository }}/issues
