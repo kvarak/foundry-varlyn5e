@@ -113,7 +113,7 @@ export class EntitySheetHelper {
         // Handle value and name replacement otherwise.
         if (!attrError) {
           oldVal = oldVal.includes(".") ? oldVal.split(".")[1] : oldVal;
-          attr = $(el).attr("name").replace(oldVal, val);
+          attr = el.getAttribute("name").replace(oldVal, val);
         }
       }
 
@@ -172,13 +172,13 @@ export class EntitySheetHelper {
     const shorthand = game.settings.get("varlyn5e", "macroShorthand");
 
     // Use the actor for rollData so that formulas are always in reference to the parent actor.
-    const rollData = this.actor.getRollData();
+    const rollData = this.document.getRollData?.() ?? {};
     let formula = button.closest(".attribute").querySelector(".attribute-value")?.value;
 
     // If there's a formula, attempt to roll it.
     if (formula) {
-      if (formula.includes("@item.") && this.item) {
-        const itemName = this.item.name.slugify({ strict: true }); // Get the machine safe version of the item name.
+      if (formula.includes("@item.") && this.document.documentName === "Item") {
+        const itemName = this.document.name.slugify({ strict: true }); // Get the machine safe version of the item name.
         const replacement = shorthand ? `@items.${itemName}.` : `@items.${itemName}.attributes.`;
         formula = formula.replace("@item.", replacement);
       }
@@ -187,7 +187,7 @@ export class EntitySheetHelper {
       const r = new Roll(formula, rollData);
       return r.toMessage({
         user: game.user.id,
-        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+        speaker: ChatMessage.getSpeaker({ actor: this.document }),
         flavor: `${chatLabel}`,
       });
     }
@@ -267,8 +267,8 @@ export class EntitySheetHelper {
     const a = event.currentTarget;
     const group = a.dataset.group;
     let dtype = a.dataset.dtype;
-    const attrs = app.object.system.attributes;
-    const groups = app.object.system.groups;
+    const attrs = app.document.system.attributes;
+    const groups = app.document.system.groups;
     const form = app.form;
 
     // Determine the new attribute key for ungrouped attributes.
@@ -331,7 +331,7 @@ export class EntitySheetHelper {
     // Append the form element and submit the form.
     newKey = newKey.children[0];
     form.appendChild(newKey);
-    await app._onSubmit(event);
+    form.requestSubmit();
   }
 
   /**
@@ -345,7 +345,7 @@ export class EntitySheetHelper {
     const li = a.closest(".attribute");
     if (li) {
       li.parentElement.removeChild(li);
-      await app._onSubmit(event);
+      app.form.requestSubmit();
     }
   }
 
@@ -360,15 +360,15 @@ export class EntitySheetHelper {
   static async createAttributeGroup(event, app) {
     const a = event.currentTarget;
     const form = app.form;
-    const newValue = $(a).siblings(".group-prefix").val();
+    const newValue = a.parentElement.querySelector(".group-prefix")?.value;
     // Verify the new group key is valid, and use it to create the group.
-    if (newValue.length > 0 && EntitySheetHelper.validateGroup(newValue, app.object)) {
+    if (newValue?.length > 0 && EntitySheetHelper.validateGroup(newValue, app.document)) {
       let newKey = document.createElement("div");
       newKey.innerHTML = `<input type="text" name="system.groups.${newValue}.key" value="${newValue}"/>`;
       // Append the form element and submit the form.
       newKey = newKey.children[0];
       form.appendChild(newKey);
-      await app._onSubmit(event);
+      form.requestSubmit();
     }
   }
 
@@ -384,18 +384,18 @@ export class EntitySheetHelper {
     const a = event.currentTarget;
     const groupHeader = a.closest(".group-header");
     const groupContainer = groupHeader.closest(".group");
-    const group = $(groupHeader).find(".group-key");
+    const group = groupHeader.querySelector(".group-key");
 
     // Create a confirmation dialog using DialogV2 (ApplicationV2)
     foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.localize("SIMPLE.DeleteGroup") },
-      content: `${game.i18n.localize("SIMPLE.DeleteGroupContent")} <strong>${group.val()}</strong>`,
+      content: `${game.i18n.localize("SIMPLE.DeleteGroupContent")} <strong>${group.value}</strong>`,
       yes: {
         icon: '<i class="fas fa-trash"></i>',
         label: game.i18n.localize("Yes"),
         callback: async () => {
           groupContainer.parentElement.removeChild(groupContainer);
-          await app._onSubmit(event);
+          app.form.requestSubmit();
         },
       },
       no: {

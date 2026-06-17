@@ -2,75 +2,106 @@ import { EntitySheetHelper } from "./helper.js";
 import { ATTRIBUTE_TYPES } from "./constants.js";
 
 /**
- * Extend the basic ItemSheet with some very simple modifications
- * @extends {ItemSheet}
+ * Extend DocumentSheetV2 (ApplicationV2 framework) for item sheets.
+ * Replaces V1 ItemSheet; see docs/ARCHITECTURE.md for migration notes.
+ * @extends {foundry.applications.api.DocumentSheetV2}
  */
-export class SimpleItemSheet extends ItemSheet {
-  /** @inheritdoc */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["varlyn5e", "sheet", "item"],
+export class SimpleItemSheet extends foundry.applications.api.DocumentSheetV2 {
+  /** @override */
+  static DEFAULT_OPTIONS = {
+    classes: ["varlyn5e", "sheet", "item"],
+    position: { width: 520, height: 480 },
+    form: { submitOnChange: true, closeOnSubmit: false },
+  };
+
+  /** @override */
+  static PARTS = {
+    form: {
       template: "systems/varlyn5e/templates/item-sheet.html",
-      width: 520,
-      height: 480,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
-      scrollY: [".attributes"],
-    });
+      scrollable: [".attributes"],
+    },
+  };
+
+  /** Tab group initial state @type {Record<string, string>} */
+  tabGroups = { primary: "description" };
+
+  /** @override */
+  get title() {
+    return this.document.name;
   }
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  async getData(options) {
-    const context = await super.getData(options);
+  /** @override */
+  async _prepareContext(options) {
+    const doc = this.document;
+    const docData = doc.toObject(false);
+    const context = {
+      data: docData,
+      systemData: docData.system,
+      dtypes: ATTRIBUTE_TYPES,
+      isOwner: doc.isOwner,
+      editable: this.isEditable,
+      cssClass: this.isEditable ? "editable" : "locked",
+    };
     EntitySheetHelper.getAttributeData(context.data);
-    context.systemData = context.data.system;
-    context.dtypes = ATTRIBUTE_TYPES;
     context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
-      context.systemData.description,
-      {
-        secrets: this.document.isOwner,
-        async: true,
-      }
+      context.systemData.description ?? "",
+      { secrets: doc.isOwner, async: true }
     );
     return context;
   }
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  activateListeners(html) {
-    super.activateListeners(html);
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
 
-    // Everything below here is only needed if the sheet is editable
+    // Initialize active tab
+    this.changeTab(this.tabGroups.primary ?? "description", "primary");
+
+    // Tab navigation
+    this.element.querySelectorAll(".sheet-tabs .item[data-tab]").forEach((tab) => {
+      tab.addEventListener("click", (event) => {
+        event.preventDefault();
+        this.changeTab(event.currentTarget.dataset.tab, "primary");
+      });
+    });
+
+    // Everything below is only needed if the sheet is editable
     if (!this.isEditable) return;
 
     // Attribute Management
-    html.find(".attributes").on("click", ".attribute-control", EntitySheetHelper.onClickAttributeControl.bind(this));
-    html.find(".groups").on("click", ".group-control", EntitySheetHelper.onClickAttributeGroupControl.bind(this));
-    html.find(".attributes").on("click", "a.attribute-roll", EntitySheetHelper.onAttributeRoll.bind(this));
+    this.element.querySelector(".attributes")?.addEventListener("click", (event) => {
+      const control = event.target.closest(".attribute-control");
+      if (control) EntitySheetHelper.onClickAttributeControl.call(this, event);
+      const roll = event.target.closest("a.attribute-roll");
+      if (roll) EntitySheetHelper.onAttributeRoll.call(this, event);
+    });
+    this.element.querySelector(".groups")?.addEventListener("click", (event) => {
+      const control = event.target.closest(".group-control");
+      if (control) EntitySheetHelper.onClickAttributeGroupControl.call(this, event);
+    });
 
-    // Add draggable for Macro creation
-    html.find(".attributes a.attribute-roll").each((i, a) => {
+    // Draggable attribute rolls for Macro creation
+    this.element.querySelectorAll(".attributes a.attribute-roll").forEach((a) => {
       a.setAttribute("draggable", true);
-      a.addEventListener(
-        "dragstart",
-        (ev) => {
-          const dragData = ev.currentTarget.dataset;
-          ev.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-        },
-        false
-      );
+      a.addEventListener("dragstart", (ev) => {
+        const dragData = ev.currentTarget.dataset;
+        ev.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+      });
     });
   }
 
   /* -------------------------------------------- */
 
   /** @override */
-  _getSubmitData(updateData) {
-    let formData = super._getSubmitData(updateData);
-    formData = EntitySheetHelper.updateAttributes(formData, this.object);
-    formData = EntitySheetHelper.updateGroups(formData, this.object);
-    return formData;
+  _processFormData(event, form, formData) {
+    const submitData = super._processFormData(event, form, formData);
+    let data = foundry.utils.flattenObject(submitData);
+    data = EntitySheetHelper.updateAttributes(data, this.document);
+    data = EntitySheetHelper.updateGroups(data, this.document);
+    return data;
   }
 }

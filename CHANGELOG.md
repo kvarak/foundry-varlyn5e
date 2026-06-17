@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Phase 1.0 - ApplicationV2 Sheet Migration (Completed)
+
+**Migrated:**
+- `SimpleActorSheet` now extends `foundry.applications.api.DocumentSheetV2` (was `ActorSheet` V1)
+- `SimpleItemSheet` now extends `foundry.applications.api.DocumentSheetV2` (was `ItemSheet` V1)
+- `static get defaultOptions()` → `static DEFAULT_OPTIONS` + `static PARTS`
+- `getData(options)` → `async _prepareContext(options)`
+- `activateListeners(html)` → `_onRender(context, options)` with native DOM APIs
+- `_getSubmitData()` → `_processFormData(event, form, formData)`
+- All jQuery usage removed from actor/item sheets and helper.js
+
+**Fixed:**
+- Removed all `$(...)` jQuery calls from `helper.js` (native DOM throughout)
+- `app.object` → `app.document` in `EntitySheetHelper`
+- `app._onSubmit(event)` → `app.form.requestSubmit()` in `EntitySheetHelper`
+- `this.actor` / `this.item` → `this.document` in `onAttributeRoll`
+- Template partial paths `systems/worldbuilding/templates/parts/` → `systems/varlyn5e/templates/parts/` (3 templates)
+
+**Impact:**
+- **Zero V1 Application framework deprecation warnings**
+- No more jQuery dependency in sheet code
+- Modern DOM APIs throughout
+- Ready for Foundry v15/v16
+- Foundation for Phase 1.1+ Varlyn features
+
+**Status:** Phase 1.0 complete ✅ - All sheets migrated to ApplicationV2
+
 ### Phase 0.5 - Documentation Structure (Completed)
 
 **Added:**
